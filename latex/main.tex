@@ -1,0 +1,89 @@
+%==========================================================
+%-------------------- begin preamble ----------------------
+%==========================================================
+%\documentclass[12pt]{article}
+\documentclass[12pt, a4paper, abstracton]{scrartcl}
+\setkomafont{disposition}{\normalfont\bfseries}
+\usepackage{setup/style}
+\input{setup/macros}
+\addbibresource{bibliography.bib}   % Bibliography
+
+% Set graphics path
+\graphicspath{{latex/figures/}}
+
+%-------- header & foot -------- 
+% FILL IN APPROPRIATE DESCRIPTIONS
+% title page
+\pagestyle{fancy}
+\fancypagestyle{firststyle}
+{
+   \fancyhf{}
+   \fancyfoot[C]{
+   % Link to GitHub
+   \faGithub \ 
+   \href{https://github.com/nicolossus/FYS9429-Project1}{github.com/nicolossus/FYS9429-Project1}}
+   \renewcommand{\headrulewidth}{0pt}
+   \renewcommand{\footrulewidth}{0.4pt}
+}
+% rest of document
+\fancyhead[L]{\small FYS5429/9429}       % Set <course>
+\fancyhead[C]{\small Project 1}             % Set <title>    
+\fancyhead[R]{\small March 22, 2024}   % Set <date>
+\fancyfoot[C]{-- \thepage\ --}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% No header:
+%\fancyhead{} 
+%\renewcommand{\headrulewidth}{0pt}
+\usepackage{appendix}
+\AtBeginEnvironment{appendices}{\crefalias{section}{appendix}}
+
+%==========================================================
+%-------------------- end preamble ----------------------
+%==========================================================
+
+%==========================================================
+%-------------------- main content ----------------------
+%==========================================================
+\begin{document}
+%------------------ title -------------------------
+\input{sections/1_titlepage}
+\pagenumbering{gobble}
+\thispagestyle{firststyle}
+
+%---------------- abstract -------------------------
+\input{sections/2_abstract}   % Abstract on title page
+\newpage
+
+%------------ content overview ---------------------
+\frontmatter      % Folios in Roman numerals
+\tableofcontents    
+%\abstractintoc   % Add abstract to table of contents
+%\listoffigures      
+%\listoftables       
+%\listofalgorithms
+%\listoftodos       % list TODOs
+
+%----------------- body ----------------------------
+\mainmatter         % Folios in Arabic numerals
+\input{sections/3_introduction}
+\input{sections/4_theory}
+\input{sections/5_method}
+\input{sections/6_results}
+%\input{sections/7_discussion}
+\input{sections/8_conclusion}
+\input{sections/9_future_work}
+ 
+%-------- bibliography ----------- 
+%\newpage 
+\printbibliography[heading=bibintoc, title={References}]
+
+%-------- appendix -----------
+\appendix
+\include{sections/X_appendix} 
+
+\end{document}
+%==========================================================
+% ------------------- end of main content ---------------
+%==========================================================

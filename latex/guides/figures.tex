@@ -1,0 +1,34 @@
+%==========================================================
+%----------------------- figures --------------------------
+%==========================================================
+% simple figure
+\begin{figure}[!htb]
+\begin{center}\includegraphics[scale=0.5]{Figures/filename}
+\end{center}
+\caption{figure text}
+\label{fig:fig1}
+\end{figure}
+
+% subfigure
+\begin{figure}[!htb]
+\centering
+\subfloat[]{{\includegraphics[scale=0.5]{Figures/filename1}}}
+\qquad
+\subfloat[]{{\includegraphics[scale=0.5]{Figures/filename2}}}
+\caption{figure text}
+\label{fig:fig1}
+\end{figure}
+
+
+\begin{figure}[!htb]
+\centering
+\subfloat[]{{\includegraphics[scale=0.5]{Figures/filename1}}}
+\qquad
+\subfloat[]{{\includegraphics[scale=0.5]{Figures/filename2}}}
+\qquad
+\subfloat[]{{\includegraphics[scale=0.5]{Figures/filename3}}}
+\qquad
+\subfloat[]{{\includegraphics[scale=0.5]{Figures/filename4}}}
+\caption{figure text}
+\label{fig:fig1}
+\end{figure}
