@@ -10,6 +10,7 @@
 *.x
 .cache
 .pytest_cache
+.ruff_cache
 notes.md
 dev
 lectures
