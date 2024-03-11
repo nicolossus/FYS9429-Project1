@@ -2,3 +2,41 @@
 \section{Introduction}\label{sec:Introduction}
 %================================================================
 
+Tentative title: VAE-based representation learning of neural population activity
+
+Simulators are the modern manifestation of scientific theories. They can implement complex mechanistic models of natural phenomena of interest as well as models for the instruments used to observe the processes under investigation. The flexibility of simulators has made them critical research tools for testing hypotheses and predicting system dynamics across many areas of science and engineering. The central challenge in simulation-based science is constraining the parameters of the underlying mechanistic model to make the simulator's predictions consistent with empirical data. Unfortunately, simulators are poorly suited for statistical inference and lead to challenging inverse problems. Mechanistic models defined through simulators describes how a process generates data, and can thus be run forward to generate samples from the likelihood. However, while the likelihood function itself can be derived for purely statistical models, the likelihood is generally intractable or computationally infeasible for simulator models, rendering traditional methods in the toolkit of statistical inference inaccessible. To overcome the challenge of intractable likelihoods, there are an emerging set of techniques for \textit{simulation-based inference} (SBI). These methods replace explicit likelihood evaluations with model simulations and make simulator models amenable for analysis in a fully Bayesian context.
+
+The target of a SBI algorithm can either be the posterior over model parameters directly or a surrogate model for the likelihood, which requires additional inference to obtain the posterior. The simplest example of SBI, the \textit{Approximate Bayesian Computation} (ABC) rejection method, builds an approximation to the true posterior by using repeated runs of the simulator together with an accept-reject criterion based on the discrepancy between the simulated and empirical data to draw posterior samples. Complex simulator models typically have both high-dimensional parameter and observational data spaces. Due to the curse of dimensionality, the posterior is therefore typically conditioned on a lower-dimensional representation of the empirical data. Condensing high-dimensional observations into low-dimensional summary statistics that captures information relevant to the parameters of interest is crucial to the success of the inference.
+
+Features of high-dimensional activity of neural populations can, for example, be expertly crafted by using domain knowledge or found by tapping into the ability of modern machine learning methods to learn useful representations directly from high-dimensional data. The latter approach might be able to uncover latent structures and dynamics from the activity of neural populations.
+
+The idea of this project is to use Variational Autoencoders (VAEs) for dimension reduction of neural population activity to improve SBI methods for parameter identification in mechanistic models of neural dynamics. In particular, the idea is to explore:
+
+\begin{itemize}
+    \item Convolutional VAEs
+    \item LSTM-based VAEs
+    \item Diffusion VAEs
+\end{itemize}
+
+
+for feature learning from simulated extracellular recordings. Raw extracellular recordings of neural signals are composed of two main components: \textit{local field potential} (LFP) and \textit{spikes} (action potentials). Spikes are extracted from the high-frequency part of these signals and LFP from the low-frequency part. As opposed to the spike data, which represent the output of a neuron, LFPs represent the synchronized input into the observed area, accounting for the biophysics of neurons, populations, and recurrent connections.
+
+
+\subsection{Mechanistic Model}
+
+\textbf{The Hodgkin-Huxley (HH) model}
+
+\begin{itemize}
+    \item Biophysically detailed description of initiation and propagation of action potentials in squid giant axons
+    \item Deterministic model
+\end{itemize}
+
+\textbf{The Brunel network model}
+
+\begin{itemize}
+    \item Sparsely connected recurrent network consisting of point neurons
+    \item Excitation-inhibition balanced
+    \item Stochastic model (random connections, Poisson input from external population)
+\end{itemize}
+    
+Though both models are highly idealized, the modeling frameworks they established have been vastly influential for modern neural modeling.
