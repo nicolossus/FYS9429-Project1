@@ -17,11 +17,10 @@ dependencies:
   # Standard scientific Python
   - numpy
   - matplotlib
-  - scipy
+  - scipy<=1.12.0
   - pandas
   - mpi4py
-
-  - conda-forge::pymc
+  #- conda-forge::pymc
 
   - pip:
 
@@ -58,14 +57,14 @@ dependencies:
     - optax
     - distrax
     - blackjax
-    - numpyro
+    #- numpyro
     - clu
 
     #  PyTorch ecosystem
     - torch
     - torchvision
     - torchaudio
-    - pyro-ppl
+    #- pyro-ppl
 
     # Tensorflow ecosystem
     - tensorflow
