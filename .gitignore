@@ -3,6 +3,7 @@
 # Edit at https://www.gitignore.io/?templates=c,qt,c++,tex,node,java,latex,pydev,linux,xcode,macos,julia,flask,matlab,python,django,pycharm,windows,valgrind,qtcreator,sublimetext,visualstudio,jupyternotebooks,visualstudiocode
 
 ### Remove before last push when done###
+.h5
 
 ### User defined ###
 *.bin
