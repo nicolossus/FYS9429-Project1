@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import matplotlib.pyplot as plt
+from helper import fig_path
 
-from neurovae import plot_digit
+from neurovae import plot_digit, plot_digits
 
 
 def plot_comparison(imgs, figsize=(5, 5), cmap="gray"):
@@ -34,4 +35,9 @@ def plot_comparison(imgs, figsize=(5, 5), cmap="gray"):
 
 def save_comparison(imgs, outfile, **kwargs):
     fig, _ = plot_comparison(imgs, **kwargs)
-    fig.savefig(outfile)
+    fig.savefig(fig_path(outfile), bbox_inches="tight")
+
+
+def save_samples(samples, outfile, **kwargs):
+    fig, _ = plot_digits(samples, **kwargs)
+    fig.savefig(fig_path(outfile), bbox_inches="tight")
