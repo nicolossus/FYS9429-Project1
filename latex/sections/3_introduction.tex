@@ -2,9 +2,9 @@
 \section{Introduction}\label{sec:Introduction}
 %================================================================
 
-Tentative title: VAE-based representation learning of neural population activity
+%Tentative title: VAE-based representation learning of neural population activity
 
-Simulators are the modern manifestation of scientific theories. They can implement complex mechanistic models of natural phenomena of interest as well as models for the instruments used to observe the processes under investigation. The flexibility of simulators has made them critical research tools for testing hypotheses and predicting system dynamics across many areas of science and engineering. The central challenge in simulation-based science is constraining the parameters of the underlying mechanistic model to make the simulator's predictions consistent with empirical data. Unfortunately, simulators are poorly suited for statistical inference and lead to challenging inverse problems. Mechanistic models defined through simulators describes how a process generates data, and can thus be run forward to generate samples from the likelihood. However, while the likelihood function itself can be derived for purely statistical models, the likelihood is generally intractable or computationally infeasible for simulator models, rendering traditional methods in the toolkit of statistical inference inaccessible. To overcome the challenge of intractable likelihoods, there are an emerging set of techniques for \textit{simulation-based inference} (SBI). These methods replace explicit likelihood evaluations with model simulations and make simulator models amenable for analysis in a fully Bayesian context.
+Simulators are the modern manifestation of scientific theories. They can implement complex mechanistic models of natural phenomena of interest as well as models for the instruments used to observe the processes under investigation. The flexibility of simulators has made them critical research tools for testing hypotheses and predicting system dynamics in many areas of science and engineering. The central challenge in simulation-based science is constraining the parameters of the underlying mechanistic model to make the simulator's predictions consistent with empirical data. Unfortunately, simulators are poorly suited for statistical inference and lead to challenging inverse problems. Mechanistic models defined through simulators describes how a process generates data, and can thus be run forward to generate samples from the likelihood. However, while the likelihood function itself can be derived for purely statistical models, the likelihood is generally intractable or computationally infeasible for simulator models, rendering traditional methods in the toolkit of statistical inference inaccessible. To overcome the challenge of intractable likelihoods, there are an emerging set of techniques for \textit{simulation-based inference} (SBI). These methods replace explicit likelihood evaluations with model simulations and make simulator models amenable for analysis in a fully Bayesian context.
 
 The target of a SBI algorithm can either be the posterior over model parameters directly or a surrogate model for the likelihood, which requires additional inference to obtain the posterior. The simplest example of SBI, the \textit{Approximate Bayesian Computation} (ABC) rejection method, builds an approximation to the true posterior by using repeated runs of the simulator together with an accept-reject criterion based on the discrepancy between the simulated and empirical data to draw posterior samples. Complex simulator models typically have both high-dimensional parameter and observational data spaces. Due to the curse of dimensionality, the posterior is therefore typically conditioned on a lower-dimensional representation of the empirical data. Condensing high-dimensional observations into low-dimensional summary statistics that captures information relevant to the parameters of interest is crucial to the success of the inference.
 
@@ -20,6 +20,7 @@ The idea of this project is to use Variational Autoencoders (VAEs) for dimension
 
 
 for feature learning from simulated extracellular recordings. Raw extracellular recordings of neural signals are composed of two main components: \textit{local field potential} (LFP) and \textit{spikes} (action potentials). Spikes are extracted from the high-frequency part of these signals and LFP from the low-frequency part. As opposed to the spike data, which represent the output of a neuron, LFPs represent the synchronized input into the observed area, accounting for the biophysics of neurons, populations, and recurrent connections.
+
 
 
 \subsection{Mechanistic Model}
@@ -40,3 +41,32 @@ for feature learning from simulated extracellular recordings. Raw extracellular 
 \end{itemize}
     
 Though both models are highly idealized, the modeling frameworks they established have been vastly influential for modern neural modeling.
+
+%----------------------------------------------------------------
+\subsection{Intro pointers}
+%----------------------------------------------------------------
+
+\begin{itemize}
+    \item Problem description
+    \item Dimension reduction / feature (representation) learning
+    \item Generative modeling
+    \item Latent variable models
+    \item Overview of this study
+    \item How it is organized
+\end{itemize}
+
+\subsection{Bayesian}
+
+In Bayesian inference, complete knowledge about a vector of model parameters, $\theta \in \Theta$, obtained by fitting a model $\mathcal{M}$, is contained in the posterior distribution. Here, prior beliefs about the model parameters, as expressed through the prior distribution, $\pi \qty(\theta)$, are updated by observing data $y_\mathrm{obs} \in \mathcal{Y}$ through the likelihood function $p  \qty(y_\mathrm{obs} | \theta)$ of the model. Using Bayes' theorem, the resulting posterior distribution
+
+\begin{equation}
+    \pi \qty(\theta | y_\mathrm{obs}) = \frac{p  \qty(y_\mathrm{obs} | \theta) \pi \qty(\theta)}{\int_\Theta p  \qty(y_\mathrm{obs} | \theta) \pi \qty(\theta) \mathrm{d} \theta}
+\end{equation}
+
+contains all necessary information required for analysis of the model checking and validation, predictive inference, and decision making. Typically, the complexity of the model and/or prior means that the posterior distribution, $\pi \qty(\theta | y_\mathrm{obs})$, is not available in closed form, and so numerical methods are needed to proceed with the inference. 
+
+\subsection{Sum stats}
+
+The choice of summary statistics for an ABC analysis is a critical decision that directly affects the quality of the posterior approximation. Many approaches for determining these statistics are available, and these are reviewed in Blum et al. (2013) and Prangle (2019). These methods seek to trade off aspects of the ABC posterior approximation that directly result from the choice of summary statistics. The first is that $\pi \qty(\theta | y_\mathrm{obs})$ is approximated by $\pi \qty(\theta | s_\mathrm{obs})$. As this represents an irrevocable potential information loss, the information content in $s_\mathrm{obs}$ should be high. The second aspect of the ABC posterior approximation is that the simulated and observed summary statistics are compared within a smoothing kernel $K_h \qty(\norm{s - s_\mathrm{obs}})$ as part of the form of $\pi_\mathrm{ABC} \qty(\theta | s_\mathrm{obs})$ (TODO: set up equations). As stochastically matching $s$ and $s_\mathrm{obs}$ becomes increasingly difficult as the dimension of the summary statistics increases, the dimension of $s$ should be low. As such, the the dimension of the summary statistic should be large enough so that it contains as much information about the observed data as possible, but also low enough so that the curse-of-dimensionality of matching $s$ and $s_\mathrm{obs}$ is avoided. For some models it may be the case that the dimension of the minimal sufficient statistic is equal to that of the original dataset. As this will cause curse-of-dimensionality problems in matching $s$ with $s_\mathrm{obs}$, it is likely that a more accurate ABC posterior approximation can be achieved by using a lower-dimensional non-sufficient statistic, rather than remaining within the class of sufficient summary statistics.
+
+\subsection{Notes}

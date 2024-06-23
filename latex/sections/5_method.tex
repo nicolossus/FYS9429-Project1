@@ -14,4 +14,20 @@
     \item $\beta$-VAE
     \item LSTM-based VAE
     \item Latent perturbation
+    \item Scaling / centering neural data? How-to pre-process time series?
+    \item Priors (Gaussian, Pinwheel etc.)
 \end{itemize}
+
+\url{https://storage.googleapis.com/deepmind-media/UCLxDeepMind_2020/L11%20-%20UCLxDeepMind%20DL2020.pdf}
+
+\url{https://www.expunctis.com/2019/01/27/Loss-functions.html}
+
+\url{https://machine-learning-note.readthedocs.io/en/latest/basic/loss_functions.html}
+
+The learning rate is considered one of the most important hyperparameters for training deep neural networks, but choosing it can be quite hard. Rather than simply using a fixed learning rate, it is common to use a learning rate scheduler. In this example, we will use the cosine scheduler. Before the cosine scheduler comes into play, we start with a so-called warmup period in which the learning rate increases linearly for warmup\_epochs epochs. For more information about the cosine scheduler, check out the paper “SGDR: Stochastic Gradient Descent with Warm Restarts”.
+
+The initial\_learning\_rate is what you want to start with.
+decay\_steps is the number of steps in which you want the learning rate to decay. If you use tf.data to create a dataloader, the total number of steps is given by len(dataloader) * number\_epochs. Note that decay\_steps can be the total number of steps or a fraction of it. You can also use any arbitrary number of steps.
+
+alpha determines the final learning rate as a fraction of initial\_learning\_rate. Assuming the initial learning rate to be 1e-3. If you want the final learning rate to be 1e-5, alpha should be 1e-2
+
