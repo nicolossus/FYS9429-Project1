@@ -35,8 +35,8 @@ class Conv2DEncoder(nn.Module):
         x = nn.relu(x)
 
         x = x.reshape((x.shape[0], -1))  # flatten image grid to single feature vector
-        # x = nn.Dense(features=256, kernel_init=nn.initializers.he_normal())(x)
-        # x = nn.relu(x)
+        x = nn.Dense(features=256, kernel_init=nn.initializers.he_normal())(x)
+        x = nn.relu(x)
 
         mu = nn.Dense(features=self.latent_dim)(x)
         logvar = nn.Dense(features=self.latent_dim)(x)
