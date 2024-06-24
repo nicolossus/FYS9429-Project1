@@ -19,7 +19,7 @@ rank = comm.Get_rank()
 
 fname = f"hh_sim_data_{rank}.h5"
 base_path = Path(__file__).resolve().parent
-outfile = base_path / "data" / fname
+outfile = base_path / "hh_data" / fname
 
 # priors
 # gkbar: U(26, 46)
