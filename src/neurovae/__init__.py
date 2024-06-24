@@ -8,6 +8,7 @@
 
 import importlib.metadata
 
+from .conv_1d_vae import Conv1DVAE
 from .conv_2d_vae import Conv2DVAE
 from .datasets_loader import load_mnist
 from .dnn_vae import DNNVAE
@@ -31,6 +32,7 @@ __all__ = [
     "DNNVAE",
     "AsymDNNVAE",
     "Conv2DVAE",
+    "Conv1DVAE",
     "load_mnist",
     "plot_digit",
     "plot_digits",
