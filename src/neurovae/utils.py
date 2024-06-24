@@ -40,7 +40,7 @@ def plot_digits(imgs, labels=None, dim=None, axes=None, figsize=(5, 5), cmap="gr
         gridspec_kw = {"hspace": 0.05, "wspace": 0.05}
         if labels is not None:
             gridspec_kw["hspace"] = 0.3
-        fig, axes = plt.subplots(dim, dim, figsize=figsize, tight_layout=True, gridspec_kw=gridspec_kw)
+        fig, axes = plt.subplots(dim, dim, figsize=figsize, gridspec_kw=gridspec_kw)
 
     for n in range(dim**2):
         img = imgs[n]
