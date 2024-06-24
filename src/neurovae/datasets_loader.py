@@ -94,19 +94,22 @@ def load_mnist(
     train_imgs_batched = _create_batches(train_imgs, batch_size, drop_remainder)
 
     if as_supervised:
-        train_labels_batched = _create_batches(train_labels, batch_size, drop_remainder)
+        train_labels_batched = _create_batches(train_labels, batch_size, drop_remainder, is_label=True)
         return train_imgs_batched, train_labels_batched, test_imgs, test_labels
 
     return train_imgs_batched, test_imgs
 
 
-def _create_batches(data, batch_size, drop_remainder):
+def _create_batches(data, batch_size, drop_remainder, is_label=False):
 
     data_size = data.shape[0]
     remainder = data_size % batch_size
 
     if drop_remainder and remainder != 0:
-        it = iter(data[: data_size - remainder, :])
+        if is_label:
+            it = iter(data[: data_size - remainder])
+        else:
+            it = iter(data[: data_size - remainder, :])
     else:
         it = iter(data)
 
