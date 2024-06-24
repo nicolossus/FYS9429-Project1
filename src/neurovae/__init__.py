@@ -8,8 +8,10 @@
 
 import importlib.metadata
 
+from .conv_2d_vae import Conv2DVAE
 from .datasets_loader import load_mnist
 from .dnn_vae import DNNVAE
+from .dnn_vae_asym import AsymDNNVAE
 from .hh_simulator import hh_simulator
 from .mlp_vae import MLPVAE
 from .utils import plot_digit, plot_digits
@@ -27,6 +29,8 @@ __version__ = importlib.metadata.version(__package__)
 __all__ = [
     "MLPVAE",
     "DNNVAE",
+    "AsymDNNVAE",
+    "Conv2DVAE",
     "load_mnist",
     "plot_digit",
     "plot_digits",
