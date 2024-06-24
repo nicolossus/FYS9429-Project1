@@ -14,7 +14,6 @@ class Conv1DEncoder(nn.Module):
     @nn.compact
     def __call__(self, x):
 
-        print("Enc in:", x.shape)
         x = nn.Conv(
             features=32,
             kernel_size=(3,),
