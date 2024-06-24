@@ -7,6 +7,16 @@
 %----------------------------------------------------------------
 \subsubsection{The MNIST dataset}
 
+
+The original MNIST dataset consists of 60,000 training and 10,000 test images of 28x28 pixel grayscale images of handwritten digits (0-9). Each image is labeled with the corresponding digit. The pixel values in the original dataset range from 0 to 255, representing the intensity of grayscale. In our experiments, we reduce the complexity of the dataset by binarizing the images. All pixel values greater than or equal to 127 are set to 1 (white), while values below 127 are set to 0 (black).
+
+The binarized MNIST dataset is commonly used in machine learning tasks where feature extraction is based on the presence or absence of pixels rather than the grayscale intensity.
+
+In our experiments, we also use a subset of . We only train and test the model on images with the labels 0-3.a
+
+Samples from the training set are shown in Fig. 2 (top left panel).
+
+
 %----------------------------------------------------------------
 \subsection{Models}
 %----------------------------------------------------------------
@@ -15,6 +25,8 @@
 \subsubsection{DNN-VAE}
 
 \subsubsection{Conv-VAE}
+
+\url{https://www.tensorflow.org/tutorials/generative/cvae}
 
 \subsection{Activation function and weight initialization}
 

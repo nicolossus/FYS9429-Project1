@@ -56,7 +56,8 @@
 %----------------------------------------------------------------
 \subsection{Autoencoders}
 %----------------------------------------------------------------
-Autoencoders are a method of dimensionality reduction, used for data compression or for extracting the most important features of a dataset. Some input, such as an image, is send into a first part, the \textbf{encoder}, see \autoref{fig:ae} where it is shrunk to the lowest possible \textbf{latent feature} representation. What is meant by the lowest possible feature representation is one in which a replication of the input (up to a given “quality”) can be reproduced by (typically) reversing the encoder in what is called a \textbf{decoder}. The goal of the (auto)encoder is typically to create the latent feature representation, while the decoder is there to reconstruct the input from this reduced representation so that we can find the error of the reconstruction compared to the input. The choice of encoder is up to the user and is typically chosen depending on the type of input; convolutional networks for images, recurrent neural networks for sequential data such as time-series data, and so on.
+
+An autoencoder is a type of artificial neural network that employs dimensionality reduction techniques for data compression and feature extraction of a dataset. The aim of an autoencoder is to find a latent feature representation of the data. It consists of two main components: an encoder and a decoder. As depicted in \autoref{fig:ae}, the encoder processes an input, such as an image, and compresses it into a compact representation of latent features. This representation is the most reduced form of feature representation that still allows reconstruction of the original input within a defined quality threshold. Subsequently, the decoder reconstructs the input from the compressed representation. The training objective of an autoencoder is to minimize the reconstruction error compared to the original input. The choice of encoder/decoder is adapted to the type of input data. For instance, convolutional neural networks (CNNs) are typically used for image data, whereas recurrent neural networks (RNNs) are suited for sequential data, such as time-series data. 
 
 \begin{figure}[!htb]
  \centering
@@ -66,65 +67,59 @@ Autoencoders are a method of dimensionality reduction, used for data compression
  \label{fig:ae}
 \end{figure}
 
-Although autoencoders can compress and recreate data easily, there is no stochasticity involved, so they are not suited to create new data fitting a specific class. As an example, an autoencoder trained on pictures of chairs may recreate the specific chairs it was trained on, but it will not be able to span the entire space of 'chairness`` and produce a series of new and original images of chairs. Another issue is that the latent space of regular autoencoders may not be continuous, making generation and interpretation of specific features difficult or impossible.
-In order to introduce stochasticity (as well as continuous and more 'useful' latent spaces) into the equation we go to \textbf{Variational Auto Encoders (VAEs)}
+Although autoencoders are effective in data compression and reconstruction, there is no stochasticity involved. This makes them inadequate for generating new data that fits a specific class. For example, an autoencoder trained on images of chairs can recreate these specific chairs, but will not create a variety of new chair images encompassing the full concept of "chairness". Moreover, the latent space of regular autoencoders may be discontinuous, making the generation and interpretation of specific features challenging or impossible. To introduce stochasticity and create continuous and practical latent spaces, Variational Autoencoders (VAEs) can be used. VAEs improve upon standard autoencoders by incorporating probabilistic elements, allowing the generation of new data instances that conform to the desired class. 
 
-\subsection{Variational Autoencoders (VAEs)}
-In a very simplified way, one can say that stochasticity in VAEs is introduced in the data stored in the latent feature space (see \autoref{fig:ae}), where instead of storing a single output value per feature in the layer, a probability distribution is stored (a mean and an std for each feature). This ensures that specific features are continuous around their mean (via their std), and that they can be separated enough to be distinguishable (via their mean).
+\subsection{Variational Autoencoders}
 
-This probability distribution in the feature layer allows us to pick samples and create new output that is (hopefully) still recognizable as what the VAE is intended to generate, while still completely new and not seen in the training data. 
+In a simplified way, stochasticity in VAEs is introduced within the latent feature space (see \autoref{fig:ae}). Instead of storing a single output value per feature, VAEs store a probability distribution, represented by a mean and a standard deviation for each feature. This approach ensures that specific features are continuous around their mean (via the standard deviation) and sufficiently separated to be distinguishable (via the mean).
 
-%If we label these samples \textbf{h} (latent variables), and our output \textbf{x},
-To obtain a good generative model, one needs to maximize the marginal likelihood $p(x)$ over all x. This is not always an easy expression to handle, as one either must know the true distribution of the data, or do an infeasible integral over latent parameters. The workaround for this issue is to derive an expression for what is known as ELBO, or Evidence Lower Boundary (\autoref{eqn:elbo}). Evidence means just the loglikelihood of the observed data (input).
-Given a parametrized encoder whose goal is to be as close as possible to the ground truth distributions; $q_\phi(z|x)\approx p(z|x)$ the ELBO can be written as:
+The probability distribution in the latent feature space allows for sampling, enabling the generation of new outputs that are both novel and recognizable as belonging to the intended class, despite not being present in the training data.
+
+To develop an effective generative model, the aim is to maximize the marginal likelihood $p(x)$ over all $x$. This can be challenging, as it requires either knowing the true data distribution or performing an infeasible integral over latent parameters. The solution to this problem is to derive the Evidence Lower Bound (ELBO) where evidence is the log-likelihood of the input data. Given a parametrized encoder with the goal of being as close as possible to the ground truth distributions; $q_\phi(z|x)\approx p(z|x)$, ELBO can be represented by the following equation:
 
 \begin{equation}\label{eqn:elbo}
  \mathbb{E}_{q_\phi(z|x)}\left[\log \frac{p(x,z)}{q_\phi(z|x)}  \right]
 \end{equation}
 
-As the name tells us, this is the lower boundary, so in other words we wish to maximize this expression to optimize our model. By using the chain rule of probability on the expression for ELBO we can rewrite it as
+%As the name tells us, this is the lower boundary, so in other words we wish to maximize this expression to optimize our model. By using the chain rule of probability on the expression for ELBO we can rewrite it as
+
+Here, $q_\phi(z|x)$ is a parametrized encoder that approximates the true posterior distribution $p(z|x)$. The objective is to maximize the ELBO to optimize the model. By applying the chain rule of probability to this expression, the ELBO can be rewritten as:
 
 \begin{equation}\label{eqn:loss}
  \mathbb{E}_{q_\phi(z|x)}\left[\log \frac{p(x,z)}{q_\phi(z|x)}  \right]
  = \mathbb{E}_{q_\phi(z|x)}[\log p_\theta (x|z)] -D_{KL}(q_\phi(z|x)||p(z))
 \end{equation}
 
-Note that we now have a new parameter function $p_\theta(x|z)$, which takes samples from the latent space z and creates new output z. The $\theta$ indicates that this is also parametrized. All the stochasticity we required is already included in creating the latent space, so this function is deterministic. The same sample from z will create the same output. The second term is known as the Kullback-Liebler divergence, which is a measure of how much two probability distributions differ.
+In this equation, $p_\theta(x|z)$ is a parametrized function that takes samples from the latent space $z$ to generate new output. Stochasticity is included in creating the latent space, making the function deterministic. The first term on the right-hand side represents the reconstruction error, ensuring that the latent features can recreate the input data. The second term is the Kullback-Leibler divergence, which measures the difference between two probability distributions.
 
-Another thing to note in \autoref{eqn:loss} is that we now have a function $q_\phi(z|x)$ that functions as an encoder, taking data from x into z, and a function $p_\theta(x|z)$ that functions as a decoder, taking a sample z and turning it into output x.
-The first term on the right hand side in \autoref{eqn:loss} can be interpreted as the reconstruction error, making sure our model produces latent features that can be used to recreate input data. The second term measures how similar our encoder is to a prior $p(z)$, and is often called a regularization term. \\ 
+It is important to note that the function $q_\phi(z|x)$ serves as an encoder, taking data from $x$ into $z$, while the function $p_\theta(x|z)$ serves as the decoder, transforming latent variable $z$ into output $x$. The first term on the right-hand side in \autoref{eqn:loss} can be interpreted as the reconstruction error. This term ensures the model's ability to generate accurate latent features that can be used to recreate input data. The second term is a regularization term that measures how similar the encoder's inferred latent distribution is to the prior $p(z)$. 
 
 \subsubsection{$\beta$-VAE}
-There are still a couple of issues to contend with for us. One is that features in the latent space can become entangled; which in a VAE working on creating faces the feature controlling the angle of the head could be tangled up with the one determining how much a person smiled. So, if you generated a person looking to the left, he would always be sad, but one looking to the right would always be happy. This problem is solved elegantly by introducing a hyperparameter $\beta >1$ in front of the KL-divergence term in the ELBO equation:
+
+A challenge of VAE is that features in the latent space can become entangled. For exmple, in a VAE trained to generate faces, the feature controlling the head's angle might become entangled with the feature controlling the person's smile. Consequently, a generated person looking to the left might always appear sad, while one looking to the right might always appear happy. This issue can be resolved by introducing a hyperparameter $\beta >1$ in front of the KL-divergence term in the ELBO equation:
 
 \begin{equation}\label{eqn:beta}
  \mathbb{E}_{q_\phi(z|x)}\left[\log \frac{p(x,z)}{q_\phi(z|x)}  \right]
  = \mathbb{E}_{q_\phi(z|x)}[\log p_\theta (x|z)] -\beta D_{KL}(q_\phi(z|x)||p(z))
 \end{equation}
 
-This parameter forces your model optimization to consider the chosen prior. Say you chose something sensible, like a multivariate Gaussian, the model will now force your encoded values closer to such a distribution. The beta will increase the cost of adding features to your latent layer, reducing degeneration (a model for drawing faces could have a feature for hair color, one for eye color, as well as one encoding both at the same time. This last one is entirely superfluous, and $\beta$-VAE should help eliminate such errant features).
+
+The $\beta$ parameter forces the model to consider the chosen prior distribution during optimization. For example, if a multivariate Gaussian is chosen as the prior, the model will force the encoded values closer to this distribution. By increasing the cost of adding features to the latent layer, $\beta$ reduces feature redundancy. In a VAE for generating faces, this means it would help eliminate unnecessary features, such as an extra feature encoding both hair and eye color when separate features for hair color and eye color already exist.
 
 \subsubsection{InfoVAE}
-%Another potential issue with VAEs is that our decoder may simply recreate good results without using the samples taken from the latent space at all, or our latent space.
 
-%encoder maps q(z|x) from X to z, decoder P(x|z) to predict specific x from z.
-%draw datapoint  x_i:p(x|z), draw latent z_i: p(z)
-%prob of x generated by z
+Another potential challenge with VAEs is that the encoder can assign identical latent features to any input $x$. Consequently, when the decoder samples from this distribution, it effectively samples from the distribution of the input data rather than from meaningful and learned features. This issue may not be critical if the objective is solely to generate images with a VAE. However, if the goal is to utilize the encoder for specific tasks, such as identifying which measurable quantities are essential for generating particular experimental data, it becomes crucial to ensure that the latent space contains useful features.
 
-Another potential issue with VAEs is that our encoder can produce the same latent features for any input x, so when our decoder samples from this it in effect samples from the distribution of input data, not from any learned and significant features.
-This might not be such a big issue if you only wish to create a VAE that generates images, but if you wish to use your encoder to learn specific information, such as ''which measurable quantities are important to create this specific experimental data``, you need to make sure the latent space containts useful features.
-%This issue will tend to occur if the regularization term is too strong, or too weak..
-InfoVAE tackles both this problem as well as the one $\beta$-VAE handled (in fact it can be shown that $\beta$-VAE is a special case of InfoVAE).
-To set up the training objective of InfoVAE it is best to start from an alternate, but equivalent up to a constant, formulation of \autoref{eqn:loss} (Zhao et al. 2019, AAAI-19);
+InfoVAE addresses both this issue and the issue solved by $\beta$-VAE, as $\beta$-VAE is a special case of InfoVAE. To formulate the training objective of InfoVAE, it is instructive to start from an alternative, but equivalently constant, formulation of \autoref{eqn:loss} \citep{Zhao}
 
 \begin{equation} \label{eqn:4}
  \mathbb{E}_{q_\phi(z|x)}\left[\log \frac{p(x,z)}{q_\phi(z|x)}  \right]
  =-D_{KL}(q_\phi(z)||p(z))-\mathbb{E}_{q_\phi(z)}[D_{KL}(q_\phi(x|z)||p_\theta(x|z))].
 \end{equation}
 
-A further issue found in VAEs arises from the fact that the dimensions of inputs x is typically much larger than the feature space z. This is known as Modeling Bias, and applies to both divergences in  \autoref{eqn:4}. If these two divergences are inversely increasing, the error from the last term on the RHS of \autoref{eqn:4} will dwarf the other one and the divergences of the latent space will become insignificant.
+Another issue in VAEs arises from the fact that the dimensionality of input $x$ is typically much larger than that of the feature space $z$. This is known as Modeling Bias and applies to both divergences in \autoref{eqn:4}. If these divergences increase inversely, the error from the last term on the right-hand side of \autoref{eqn:4} can dominate, rendering the divergences in the latent space insignificant.
 
-To handle all the aforementioned issues with the standard VAE we modify the training objective in some specific ways. In order to emphasize the importance of divergence in the latent space we multiply the first term on the RHS of \autoref{eqn:4} by a scaling hyperparameter $\lambda$. We then add a new term to handle the tendency of not using the sample z from latent space when decoding. This term is based on the mutual information between z and x, $I_{q_\phi}(x,z)$. Note that this term is positive, so we wish to minimize the mutual information. Our new objective is then
+To address all these issues inherent in standard VAEs, we modify the training objective in specific ways. To emphasize the importance of divergence in the latent space, we introduce a scaling hyperparameter $\lambda$ to multiply the first term on the right-hand side of \autoref{eqn:4}. Furthermore, we introduce a new term to counteract the tendency to underutilize samples $z$ from the latent space during decoding. This term is based on the mutual information between $z$ and $x$, denoted as $I_{q_\phi}(x,z)$. Since this term is positive, minimizing mutual information is desired. The revised objective for InfoVAE is then:
 
 \begin{align}
  \mathbb{E}_{q_\phi(z|x)}\left[\log \frac{p(x,z)}{q_\phi(z|x)}  \right]_{InfoVAE}
@@ -134,103 +129,115 @@ To handle all the aforementioned issues with the standard VAE we modify the trai
  \label{eqn:4}
 \end{align}
 
-This expression is not readily optimizable, but the further derivations are not very illuminating.\\
-This equation returns to the standard ELBO by setting the new hyperparameters to $\alpha=0$ and $\lambda=1$, while a $\lambda > 0$ and $\alpha+\lambda-1=0$ returns us to $\beta$-VAE.
+where this formulation is not immediately straightforward to optimize. Returning to the standard ELBO is achieved by setting the hyperparameters to $\alpha=0$ and $\lambda=1$, while $\lambda > 0$ and $\alpha+\lambda-1=0$ return to $\beta$-VAE.
+
+\subsection{MLP and DNN}
+
+A multilayer perceptron (MLP) represents one of the fundamental types of neural networks, illustrated in Figure \ref{fig:mlp}. The network takes a set of inputs $X$, which are the features or data to be studied, and connects them to the subsequent hidden layer to the right through a series of weights, each corresponding to a connection. Each node $a$ in this hidden layer computes a weighted sum of inputs, augmented by a layer-specific bias term, and applies a non-linear activation function such as sigmoid, tanh, or ReLU. These activation functions introduce non-linearity into the model, enabling it to capture complex relationships between input variables and providing depth to the network (where multiple linear transformations cannot simply be replaced by a single linear transformation). The bias term adjusts the activation threshold of each node, analogous to a firing threshold in neuron models. The final layer $f(X)$ in \ref{fig:mlp} integrates outputs from the preceding layer to produce the network's final output value(s). To construct a more sophisticated and potentially more powerful network, additional hidden layers are often added successively. 
 
 
-\subsubsection{the mathemathics of autoencoders}
-This gets close to MHJ lecture notes, do we need it?\\
-If we define the input as \textbf{x}, the encoder can be seen as a function working on it via some weights to be determined, \textbf{W}; \\$\textbf{h}=f(\mathbf{x},\mathbf{W})$.\\
-The decoder is then a function working with \textbf{h} as input, and a new set of weights \textbf{V}, creating the reconstructed output $\tilde{x}$; \\$\tilde{x}=g(\mathbf{h},\mathbf{V})$.\\
-Now we have an $x$ and an $\tilde{x}$ we can compare to find a reconstruction error and evaluate our feature layer.
-
-
-\subsection{RNN}
-Recurrent Neural Networks, or RNNs, are a type of neural network designed/structured to handle sequential, often time dependent, data. Where a typical Feed Forward Neural Network sends a single input vector \textbf{x} through an arbitrary number of hidden layers \textbf{h} to reach an output \textbf{y}, a recurrent network will send a separate input \textbf{x$<$t$>$} into a separate hidden layer \textbf{h$<$t$>$} for  every step of the sequence (or every time step), see \autoref{fig:RNN}. Each of these hidden layers will also receive input from the previous sequential hidden layer in order to incorporate the sequential nature of the input data. For each set of input data \textbf{x$<$t$>$} we will receive a separate output data \textbf{y$<$t$>$}, which in turn can be used to compute a loss for each sequential step. One will then require a total loss function over all steps, which can simply be the sum over all sequential steps. This loss is then backpropagated through the whole network. 
-
-\begin{figure}[!htb]
- \centering
- \includegraphics[scale=0.5]{RNN2.png}
- % RNN2.png: 2046x1036 px, 144dpi, 36.09x18.27 cm, bb=0 0 1023 518
- \caption{\textbf{Recurrent Neural Network architecture} Write here}
- \label{fig:RNN}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{latex//figures/multilayerperceptron_network.png}
+    \caption{\textbf{MLP}:Input data $X$ is sent to a hidden layer, denoted $a$, and finally an output $f(X)$ is generated. Figure borrowed without permission from sckikit-learn.org.}
+    \label{fig:mlp}
 \end{figure}
 
-\subsubsection{The mathematics of RNNs}
-One can have other configurations of an RNN, such as not connecting hidden layers t and t-1, but rather the output of t-1 to the hidden layer of t, and other variants. But sticking with the architecture shown in \autoref{fig:RNN}, the relevant parameters can be seen in \autoref{fig:RNN_w}.
+Initially, the network will produce meaningless output until it is trained. Training involves adjusting the weights and biases for each hidden layer by comparing the generated output to known target data. For instance, when classifying digits from the MNIST dataset, a flattened array of grayscale values is input, and the network aims to classify them into digits 0 through 9. The error between the network's output and the correct answers is computed and propagated backward through the layers via backpropagation. At each layer, weights and biases are updated in accordance with the error to refine the model's predictions. Training continues iteratively until predefined criteria are met, such as reaching a specified number of iterations or no longer improving over several cycles. This process, known as model training, demands substantial amounts of data and computation time. A well-trained model with low error can then be deployed on unseen data to predict outputs that closely match the correct results.
 
-\begin{figure}[!htb]
- \centering
- \includegraphics[trim={0cm 0cm 0cm 2.5cm},clip,scale=0.45]{RNN_w.png}
- % RNN_w.png: 2262x1588 px, 144dpi, 39.90x28.01 cm, bb=0 0 1131 794
- \caption{\textbf{RNN parameters}}
- \label{fig:RNN_w}
+A deep neural network (DNN) is constructed using the same fundamental elements as the MLP in \ref{fig:mlp}, but with increased complexity including additional hidden layers as illustrated in \ref{fig:dnn}. For instance, taking the input of 28x28 dimensions of MNIST data flattened to a 784-dimensional vector into consideration, MLP and DNN show different network architectures. In the case of MLP, the input is fed into a single hidden layer comprising 500 features, where the output, serving as the latent space in a VAE, is set to 20 features. DNN follows the same initial structures, but includes additional hidden layers subsequent to the first and features 150 features. Therefore, MLPs and DNNs utilize common building blocks, but differs in the depth and configuration of their hidden layers.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{latex//figures/nn1.png}
+    \caption{\textbf{DNN}: Architecture of a deep neural network. An array of input data is sent via some weights and biases to a hidden layer $a_1$. Instead of sending the output of $a_1$ straight to an output layer, several more hidden layers are included.}
+    \label{fig:dnn}
 \end{figure}
 
-Here the inputs to each hidden layer depends on the previous hidden layer as well as the input for this time step, along with the inevitable bias. This input is sent into an activation function such as softmax, and then sent on to the output layer, as well as the next time step hidden layer.
-The total loss \textbf{L} can be computed as
+%An example of a network with more layers is seen in Figure \ref{fig:dnn}, and while it looks a lot more complicated it is built of the same building blocks as the model seen in Figure \ref{fig:mlp}.
 
-\begin{equation}
- L = \sum_{t=1}^TL^{\langle t \rangle},
-\end{equation}
+%A DNN (deep neural network) is a similar construction as the MLP, and in the literature the two often overlap, so it may be more helpful to just say what our two models were.\\Our input is the usual 28x28 dimensions of MNIST flattened to a 784 features long vector. 
+%In the MLP this is sent to a single hidden layer of 500 features, and out output (which will be the latent space in the VAE) is set to 20 features.\\
+%The DNN does the same, but it has an additional hidden layer after the first, consisting of 150 features.
 
-where \textbf{L$^{\langle t \rangle}$} is the loss found at time step t. This loss is back propagated through the entire network, so now \textbf{h$^{<t-1>}$} receives 'input' from \textbf{h$^{<t>}$} as well as \textbf{y$^{<t-1>}$}.
-The back propagation is done sequentially by the chain rule; wrt to $W_{hh}$
 
-\begin{equation}
- \frac{\partial L}{\partial W_{hh}} = \sum_{t=1}^T\frac{\partial L^{\langle t \rangle}}{\partial W_{hh}} = \sum_{t=1}^T \frac{\partial L^{\langle t \rangle}}{\partial y^{\langle t \rangle}}\frac{\partial y^{\langle t \rangle}}{\partial h^{\langle t \rangle}}\frac{\partial h^{\langle t \rangle}}{\partial W_{hh}}
-\end{equation}
 
-The final factor of this equation will depend on the weights $W_{hh}$ and the previous time step hidden layer (which again depends on the previous time step and so on.
-Thus we can write (note the lower case t in the summation, summin  only up to the current step):
+% \subsection{RNN}
+% Recurrent Neural Networks, or RNNs, are a type of neural network designed/structured to handle sequential, often time dependent, data. Where a typical Feed Forward Neural Network sends a single input vector \textbf{x} through an arbitrary number of hidden layers \textbf{h} to reach an output \textbf{y}, a recurrent network will send a separate input \textbf{x$<$t$>$} into a separate hidden layer \textbf{h$<$t$>$} for  every step of the sequence (or every time step), see \autoref{fig:RNN}. Each of these hidden layers will also receive input from the previous sequential hidden layer in order to incorporate the sequential nature of the input data. For each set of input data \textbf{x$<$t$>$} we will receive a separate output data \textbf{y$<$t$>$}, which in turn can be used to compute a loss for each sequential step. One will then require a total loss function over all steps, which can simply be the sum over all sequential steps. This loss is then backpropagated through the whole network. 
 
-\begin{equation}
- \frac{\partial h^{\langle t \rangle}}{\partial W_{hh}} = \sum_{k=1}^t \frac{\partial h^{\langle t \rangle}}{\partial h^{\langle k \rangle}} \frac{\partial h^{\langle k \rangle}}{\partial W_{hh}}
-\end{equation}
+% \begin{figure}[!htb]
+%  \centering
+%  \includegraphics[scale=0.5]{RNN2.png}
+%  % RNN2.png: 2046x1036 px, 144dpi, 36.09x18.27 cm, bb=0 0 1023 518
+%  \caption{\textbf{Recurrent Neural Network architecture} Write here}
+%  \label{fig:RNN}
+% \end{figure}
 
-The first factor here can be expanded
+% \subsubsection{The mathematics of RNNs}
+% One can have other configurations of an RNN, such as not connecting hidden layers t and t-1, but rather the output of t-1 to the hidden layer of t, and other variants. But sticking with the architecture shown in \autoref{fig:RNN}, the relevant parameters can be seen in \autoref{fig:RNN_w}.
 
-\begin{equation}
- \frac{\partial h^{\langle t \rangle}}{\partial h^{\langle k \rangle}} = \frac{\partial h^{\langle t \rangle}}{\partial h^{\langle t-1 \rangle}} \frac{\partial h^{\langle t-1 \rangle}}{\partial h^{\langle t-2 \rangle}}  \cdots \frac{\partial h^{\langle k+1 \rangle}}{\partial h^{\langle k \rangle}} = \prod_{i=k+1}^t \frac{\partial h^{\langle i \rangle}}{\partial h^{\langle i-1 \rangle}}
-\end{equation}
+% \begin{figure}[!htb]
+%  \centering
+%  \includegraphics[trim={0cm 0cm 0cm 2.5cm},clip,scale=0.45]{RNN_w.png}
+%  % RNN_w.png: 2262x1588 px, 144dpi, 39.90x28.01 cm, bb=0 0 1131 794
+%  \caption{\textbf{RNN parameters}}
+%  \label{fig:RNN_w}
+% \end{figure}
 
-If your data consists of many time steps this chain can become extremely long, both increasing computational costs and a long chain can cause exploding gradients as a small change in the initial conditions can lead to large changes in the outcome. 
+% Here the inputs to each hidden layer depends on the previous hidden layer as well as the input for this time step, along with the inevitable bias. This input is sent into an activation function such as softmax, and then sent on to the output layer, as well as the next time step hidden layer.
+% The total loss \textbf{L} can be computed as
 
-NICO:
-Section on handling exploding gradients? LSTM probably..
-Also, total loss should be divided by T (num timesteps) so scale of loss will not be sensitive to length of sequences. not relevant for our purposes I believe, w all sequences as long.
+% \begin{equation}
+%  L = \sum_{t=1}^TL^{\langle t \rangle},
+% \end{equation}
+
+% where \textbf{L$^{\langle t \rangle}$} is the loss found at time step t. This loss is back propagated through the entire network, so now \textbf{h$^{<t-1>}$} receives 'input' from \textbf{h$^{<t>}$} as well as \textbf{y$^{<t-1>}$}.
+% The back propagation is done sequentially by the chain rule; wrt to $W_{hh}$
+
+% \begin{equation}
+%  \frac{\partial L}{\partial W_{hh}} = \sum_{t=1}^T\frac{\partial L^{\langle t \rangle}}{\partial W_{hh}} = \sum_{t=1}^T \frac{\partial L^{\langle t \rangle}}{\partial y^{\langle t \rangle}}\frac{\partial y^{\langle t \rangle}}{\partial h^{\langle t \rangle}}\frac{\partial h^{\langle t \rangle}}{\partial W_{hh}}
+% \end{equation}
+
+% The final factor of this equation will depend on the weights $W_{hh}$ and the previous time step hidden layer (which again depends on the previous time step and so on.
+% Thus we can write (note the lower case t in the summation, summin  only up to the current step):
+
+% \begin{equation}
+%  \frac{\partial h^{\langle t \rangle}}{\partial W_{hh}} = \sum_{k=1}^t \frac{\partial h^{\langle t \rangle}}{\partial h^{\langle k \rangle}} \frac{\partial h^{\langle k \rangle}}{\partial W_{hh}}
+% \end{equation}
+
+% The first factor here can be expanded
+
+% \begin{equation}
+%  \frac{\partial h^{\langle t \rangle}}{\partial h^{\langle k \rangle}} = \frac{\partial h^{\langle t \rangle}}{\partial h^{\langle t-1 \rangle}} \frac{\partial h^{\langle t-1 \rangle}}{\partial h^{\langle t-2 \rangle}}  \cdots \frac{\partial h^{\langle k+1 \rangle}}{\partial h^{\langle k \rangle}} = \prod_{i=k+1}^t \frac{\partial h^{\langle i \rangle}}{\partial h^{\langle i-1 \rangle}}
+% \end{equation}
+
+% If your data consists of many time steps this chain can become extremely long, both increasing computational costs and a long chain can cause exploding gradients as a small change in the initial conditions can lead to large changes in the outcome. 
+
+% NICO:
+% Section on handling exploding gradients? LSTM probably..
+% Also, total loss should be divided by T (num timesteps) so scale of loss will not be sensitive to length of sequences. not relevant for our purposes I believe, w all sequences as long.
 
 %----------------------------------------------------------------
 \subsection{CNN}
 %----------------------------------------------------------------
-Convolutional Neural Networks (CNNs) are most known for their use in image processing, for tasks such as image recognition, and are characterized by employing convolution in one or more layer instead of matrix multiplications such as in other network types. By assuming a typical image structure on the input data (dimensions of width, height and depth) the architecture of the network can be optimized compared to a more general network. The 3D nature of the input data is kept throughout the hidden layers of the network, which are now subdivided into specific types. In data such as images one would assume some strong (cor)relation between neighboring pixels, which is key to the use of convolution.
 
-First the input is subjected to a convolutional layer, in which a kernel (typically an nxnxf dimension, where we have a filter consisting of f squares of size N$x$N) will scan across the input data, creating an ouput, then translating the kernel sideways by some predefined \textit{stride} length, and repeating the process. In Figure \ref{fig:cnn} an example of the whole CNN process is shown, and in the first step we go from a 28x28x1 size input image, via a 5x5x32 kernel to a 28x28x32 output. When doing a convolution such as this you're no longer interested in a heap of weights and biases as in deep neural nets, but rather just a small set of chosen parameters:
+Convolutional Neural Networks (CNNs) are predominantly used in image processing tasks such as image recognition. They differ from other neural network types by incorporating convolution operations in one or more layers instead of typically used matrix multiplications. This architectural choice is tailored to leverage the typical spatial structure of images, characterized by dimensions of width, height, and depth, which helps optimize network performance compared to more general architectures. In CNNs, the 3D nature of input data (width, height, and channels) is preserved across hidden layers, which are specialized into specific types. The key of convolution lies in the application of kernels (typically N$x$N$x$F filters) across the input data. Each kernel slides over the input data with a predefined stride, computing outputs by performing a dot product operation within its receptive field. This process, illustrated in Figure \ref{fig:cnn}, transforms an initial 28x28x1 input image, for example, into a 28x28x32 output using a 5x5x32 kernel. In convolution operations like this, the focus is not on numerous weights and biases as in deep neural nets, but rather a smaller set of chosen parameters: 
+
 
 \begin{itemize}
  \item \textbf{Kernel size}: The spatial dimensions of each filter, as well as the number of filters (N$x$N$x$F)
  \item \textbf{Stride}: The distance to move the kernel for each computation. The kernel is moved one stride length to the left each time until it reaches the end of the current row, then it will return to the initial position, move one stride down, and then repeat the whole process.
- \item \textbf{Padding}: Padding refers to adding a rim of zeros (typically) around your image, avoiding potential issues near the edges of the image, as well as to conserve the spatial dimension of the image bein convolved 
+ \item \textbf{Padding}: Padding refers to adding a rim of zeros (typically) around your image, avoiding potential issues near the edges of the image, as well as to conserve the spatial dimension of the image being convolved.
 \end{itemize}
 
-
-
-
-%inside the window defined by the kernel, computing the output of local regions of the data.
-This step will typically increase the depth dimension size considerably, depending on the number of channels in the kernel used.\\
-
-
-
-Another important layer type in CNNs is the pooling layer, which decreases the spatial dimensions. In a way it is similar to what we did above, in that we create an N$x$N window again, whisch we apply in a similar manner all over the image. This time however, instead of doing a dot product over the image data and the kernel vaues, we simply find a way of representing the N$x$N data as one single data point. Two very popular methods are to either take the average over all values inside the window, or simply to pick the maximum value.
-In Figure \ref{fig:cnn} we see pooling being used in the second operation, where a 2x2 window is applied, quartering the spatial dimension of each channel. Note that this crude dimension reduction can loseinteresting features, so it is rarely chosen to be large.
-After a series of such convolutional and pooling layers, you will finally be prepared to do the classification, or whichever task you have for your network. The ouput of your final pooling layer is flattened into a single vector, and sent into one (ore more) fully connected (all to all) layer(s). The output of the final of these is used to perform your designated task.
 \begin{figure}[H]
  \centering
  \includegraphics[scale=0.2]{deepcnn.png}
  % deepcnn.png: 1972x595 px, 72dpi, 69.57x20.99 cm, bb=0 0 1972 595
- \caption{\textbf{Convolutional Neural Network architecture} In this figure a simple input, such as a grayscale image, of dimensions 28x28x1 is sent thtough two sets of convolutions and pooling before it is flattened, and sent through a set of fully connected layers (FC) in  the end.}
+ \caption{\textbf{CNN architecture} A simple input of a grayscale image, of dimensions 28x28x1 is sent through two sets of convolutions and pooling before it is flattened, and sent through a set of fully connected layers (FC) in  the end.}
  \label{fig:cnn}
 \end{figure}
+
 Some benefits of such a network compared to a deep neural network are:
 \begin{itemize}
  \item they take higher dimensional data as input
@@ -239,22 +246,47 @@ Some benefits of such a network compared to a deep neural network are:
  \item can do unsupervised classification and feature extraction/recognition
 \end{itemize}
 
+% %inside the window defined by the kernel, computing the output of local regions of the data.
+%This step will typically increase the depth dimension size considerably, depending on the number of channels in the kernel used.\\
+
+%Another important layer type in CNNs is the pooling layer, which decreases the spatial dimensions. In a way it is similar to what we did above, in that we create an N$x$N window again, whisch we apply in a similar manner all over the image. This time however, instead of doing a dot product over the image data and the kernel vaues, we simply find a way of representing the N$x$N data as one single data point. Two very popular methods are to either take the average over all values inside the window, or simply to pick the maximum value.
+%In Figure \ref{fig:cnn} we see pooling being used in the second operation, where a 2x2 window is applied, quartering the spatial dimension of each channel. Note that this crude dimension reduction can loseinteresting features, so it is rarely chosen to be large.
+%After a series of such convolutional and pooling layers, you will finally be prepared to do the classification, or whichever task you have for your network. The ouput of your final pooling layer is flattened into a single vector, and sent into one (ore more) fully connected (all to all) layer(s). The output of the final of these is used to perform your designated task.
+
+Unlike deep neural networks that rely on extensive parameters, CNNs utilize a compact set of parameters per operation. Additionally, CNNs employ pooling layers to reduce spatial dimensions. Pooling involves applying an N$x$N window across the data and aggregating it into a single value, typically by taking the maximum or average. While effective for dimensionality reduction, pooling can discard nuanced features, thus smaller pool sizes are preferred. Following a sequence of convolutional and pooling layers, the final output is prepared for classification or another designated task. The output of the last pooling layer is flattened into a vector and fed into one or more fully connected layers, which perform the final computation.
+
+
+
 \subsection{Visualizing the latent space}
-It can be useful to find a way to visualize the latent space; such as to see how it is distributed in a 2D space, to see where there may be overlap between features and such.\\
-We will be using a method with the fetching name t-distributed stochastic neighbour embedding (t-SNE). In order to represent high dimensional data, such as our latent space visually it makes sense to do a dimensionality reduction down to two (or three) dimensions, as this is easy to draw and comprehend. The method is non-linear and unsupervised, and will emphasize how closely classes (if we're looking at a classification problem, which we usually are when using these embeddings) lie in latent space, and ensure that they lie close in the t-SNE representation. 
-This means that t-SNE will calculate a the similarity between all pairs of data points in the data we wish to represent. This can be a rather time-consuming and computationally expensive affair, so datasets containing many (millions) of samples. The similarity is given by a Gaussian distribution,
+
+
+
+
+Visualizing the latent space, where features are represented in a lower-dimensional form, helps when it comes to understanding data distributions and feature relationships. In order to do this, methods such as t-distributed stochastic neighbor embedding (t-SNE) are valuable for reducing high-dimensional data to a 2D or 3D embedding. t-SNE is a non-linear, unsupervised method that emphasizes proximity between data points in the latent space, revealing class distributions and similarities. To achieve this, t-SNE computes pairwise similarities between data points in the high-dimensional space using a Gaussian distribution, 
+
 \begin{equation}
     p_{i|j}=\frac{\exp (-||x_i-x_j||^2/2\sigma_i^2)}{\sum_{k\neq i}\exp(-||x_i-x_k||^2/2\sigma_i^2)},
 \end{equation}
-the probability that j is a neighbor if you are i. The probabilities will usually be symmetrized, $p_{ij}=(p_{j|i}+p_{i|j})/2N$, where N is the number of samples used.\\ 
-A similar probability distribution is created in the low dimensional visualization layer (or embedding space), but here a Student t-distribution is employed in place of the Gaussian distribution we used before: \begin{equation}
+
+with the probability that j is a neighbor if you are i. The probabilities will usually be symmetrized, $p_{ij}=(p_{j|i}+p_{i|j})/2N$, where N is the number of samples used. 
+
+A similar probability distribution is created in the low dimensional visualization layer (or embedding space), using a Student t-distribution instead of the Gaussian distribution we used before: 
+
+\begin{equation}
     q_{ij}=\frac{(1+||y_i-y_j||^2)^{-1}}{\sum_k\sum_{l\neq k}(1+||y_k-y_l||^2)^{-1}},
 \end{equation}
-where $q_{ii}=0$.
-We now have two probability distributions that we wish to make as similar as possible. But this is something we have recently dealt with, and is done by minimizing the KL divergence!\\
+
+where $q_{ii}=0$. We now have two probability distributions that we wish to make as similar as possible. This optimization process minimizes the Kullback-Leibler (KL) divergence between the high-dimensional and embedding space distributions, ensuring a faithful representation of data relationships in the reduced dimensionality.
+
+%But this is something we have recently dealt with, and is done by minimizing the KL divergence!\\
+
 If we call the embedding space distribution Q and the latent space distribution P, we have
+
 \begin{equation}
     D_{KL}(P||Q)=\sum_{i\neq j}p_{ij}\log\frac{p_{ij}}{q_{ij}}
 \end{equation}
+
 as the expression we wish to minimize using gradient descent.
-Running through these steps should result in a very low (2/3D) representation of a higher dimensional space, that can be used for visualizing classes.\\
+Running through these steps should result in a very low (2/3D) representation of a higher dimensional space, that can be used for visualizing classes.
+
+By leveraging t-SNE, researchers can obtain insightful visualizations that facilitate the interpretation and analysis of complex data distributions, aiding tasks such as class separation and clustering in visual contexts. However, this computational method can be intensive for large datasets, requiring careful parameter tuning and computational resources to achieve optimal results.
