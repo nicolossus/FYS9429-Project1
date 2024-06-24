@@ -9,7 +9,7 @@ from .vae_utils import reparameterize
 
 
 class DNNEncoder(nn.Module):
-    """DNN VAE Encoder."""
+    """DNN-VAE Encoder."""
 
     hidden_dims: Sequence[int]
     latent_dim: int
@@ -26,7 +26,7 @@ class DNNEncoder(nn.Module):
 
 
 class DNNDecoder(nn.Module):
-    """DNN VAE Decoder."""
+    """DNN-VAE Decoder."""
 
     hidden_dims: Sequence[int]
     output_dim: int
@@ -44,7 +44,7 @@ class DNNDecoder(nn.Module):
 
 
 class DNNVAE(nn.Module):
-    """Full DNN VAE model."""
+    """Full DNN-VAE model."""
 
     hidden_dims: Sequence = (500, 150)
     latent_dim: int = 20

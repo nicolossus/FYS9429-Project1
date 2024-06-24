@@ -9,7 +9,7 @@ from .vae_utils import reparameterize
 
 
 class MLPEncoder(nn.Module):
-    """MLP VAE Encoder."""
+    """MLP-VAE Encoder."""
 
     hidden_dim: int
     latent_dim: int
@@ -25,7 +25,7 @@ class MLPEncoder(nn.Module):
 
 
 class MLPDecoder(nn.Module):
-    """MLP VAE Decoder."""
+    """MLP-VAE Decoder."""
 
     hidden_dim: int
     output_dim: int
@@ -40,7 +40,7 @@ class MLPDecoder(nn.Module):
 
 
 class MLPVAE(nn.Module):
-    """Full MLP VAE model."""
+    """Full MLP-VAE model."""
 
     hidden_dim: int = 500
     latent_dim: int = 20
