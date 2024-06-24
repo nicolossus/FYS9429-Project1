@@ -3,7 +3,9 @@
 \section{Results and Discussion}\label{sec:Results}
 %================================================================
 
-\subsection{The effect of the latent dimension}  
+\subsection{Binarized MNIST experiments}
+
+\subsubsection{The effect of the latent dimension}  
 
 \autoref{fig:loss_latent_dim_vanilla_vae_bmnist} show the ELBO ... during training for different choices of latent dimensions. In terms of the loss, the Conv-VAE generally performs slightly better than the MLP- and DNN-VAE.
 why? cnn in principle better at extracting features 
@@ -70,8 +72,8 @@ why? cnn in principle better at extracting features
 
 
 
-
-\subsection{Disentangling the latent space}
+\FloatBarrier
+\subsubsection{Disentangling the latent space}
 
 \autoref{fig:beta_vae_tradeoff}
 \begin{figure}[!htb]
@@ -98,6 +100,32 @@ why? cnn in principle better at extracting features
 \subfloat[]{{\includegraphics[scale=0.45]{latex/figures/tsne_beta_10_vae.pdf}}}
 \caption{t-SNE }
 \label{fig:tsne_beta_vae_bmnist}
+\end{figure}
+
+\FloatBarrier
+%----------------------------------------------------------------
+\subsection{Neural activity data experiments}
+%----------------------------------------------------------------
+
+\autoref{fig:hh_conv_vae_beta_1_z_20}
+
+\begin{figure}[!htb]
+\begin{center}\includegraphics[scale=0.75]{latex/figures/hh_conv_vae_beta_1_z_20.pdf}
+\end{center}
+\caption{beta 1, z 20}
+\label{fig:hh_conv_vae_beta_1_z_20}
+\end{figure}
+
+\autoref{fig:hh_conv_vae_beta_1_z_2_10}. See \autoref{fig:hh_conv_vae_beta_0_5} and \autoref{fig:hh_conv_vae_beta_2} for results with $\beta=0.5$ and $\beta=2$, respectively.
+
+
+\begin{figure}[!htb]
+\centering
+\subfloat[]{{\includegraphics[scale=0.38]{latex/figures/hh_conv_vae_beta_1_z_2.pdf}}}
+\qquad
+\subfloat[]{{\includegraphics[scale=0.38]{latex/figures/hh_conv_vae_beta_1_z_10.pdf}}}
+\caption{beta 1, z 2 10 }
+\label{fig:hh_conv_vae_beta_1_z_2_10}
 \end{figure}
 
 
