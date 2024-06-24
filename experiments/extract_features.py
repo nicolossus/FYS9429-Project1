@@ -17,8 +17,8 @@ infile = f"hh_sim_data_{rank}.h5"
 outfile = f"hh_feature_data_{rank}.csv"
 
 base_path = Path(__file__).resolve().parent
-infile_path = base_path / "data" / infile
-outfile_path = base_path / "data" / outfile
+infile_path = base_path / "hh_data" / infile
+outfile_path = base_path / "hh_data" / outfile
 
 with open("features.json", "r") as f:
     features = json.load(f)["features"]
