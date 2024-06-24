@@ -3,29 +3,95 @@
 \section{Results and Discussion}\label{sec:Results}
 %================================================================
 
-% simple figure
+\subsection{The effect of the latent dimension}  
+
+\autoref{fig:loss_latent_dim_vanilla_vae_bmnist} show the ELBO ... during training for different choices of latent dimensions. In terms of the loss, the Conv-VAE generally performs slightly better than the MLP- and DNN-VAE.
+why? cnn in principle better at extracting features 
+
 \begin{figure}[!htb]
-\begin{center}\includegraphics[scale=0.7]{latex/figures/loss_latent_dim_vanilla_mlp_dnn_vae_bmnist.pdf}
+\begin{center}\includegraphics[scale=0.75]{latex/figures/loss_latent_dim_vanilla_mlp_dnn_vae_bmnist.pdf}
 \end{center}
 \caption{figure text}
-\label{fig:loss_latent_dim_vanilla_mlp_dnn_vae_bmnist}
+\label{fig:loss_latent_dim_vanilla_vae_bmnist}
 \end{figure}
 
+\autoref{fig:recon_latent_dim_vanilla_vae_bmnist} shows the VAEs reconstructed images from the test set.
 
 \begin{figure}[!htb]
 \centering
+\subfloat[]{{\includegraphics[scale=0.5]{latex/figures/recon_latent_dim_1_vanilla_mlp_vae_bmnist.pdf}}}
+\qquad
+\subfloat[]{{\includegraphics[scale=0.5]{latex/figures/recon_latent_dim_1_vanilla_dnn_vae_bmnist.pdf}}}
+\qquad
+\subfloat[]{{\includegraphics[scale=0.5]{latex/figures/recon_latent_dim_1_vanilla_conv_vae_bmnist.pdf}}}
+\qquad
 \subfloat[]{{\includegraphics[scale=0.5]{latex/figures/recon_latent_dim_20_vanilla_mlp_vae_bmnist.pdf}}}
 \qquad
 \subfloat[]{{\includegraphics[scale=0.5]{latex/figures/recon_latent_dim_20_vanilla_dnn_vae_bmnist.pdf}}}
 \qquad
+\subfloat[]{{\includegraphics[scale=0.5]{latex/figures/recon_latent_dim_20_vanilla_conv_vae_bmnist.pdf}}}
+\qquad
 \subfloat[]{{\includegraphics[scale=0.5]{latex/figures/recon_latent_dim_100_vanilla_mlp_vae_bmnist.pdf}}}
 \qquad
 \subfloat[]{{\includegraphics[scale=0.5]{latex/figures/recon_latent_dim_100_vanilla_dnn_vae_bmnist.pdf}}}
-\caption{figure text}
-\label{fig:recon_latent_dim_vanilla_mlp_dnn_vae_bmnist}
+\qquad
+\subfloat[]{{\includegraphics[scale=0.5]{latex/figures/recon_latent_dim_100_vanilla_conv_vae_bmnist.pdf}}}
+\caption{Comparison of original and reconstructed images. Grids to the left are the MLP-VAE, in the middle DNN-VAE and to the right Conv-VAE. The top row shows 1 latent dimension, the middle 20 latent dimensions and the bottom 100}
+\label{fig:recon_latent_dim_vanilla_vae_bmnist}
 \end{figure}
 
-suggests that VAEs based on a MLP or DNN architecture is not optimal for learning latent representations of the MNIST digits.
+
+\autoref{fig:samples_latent_dim_vanilla_vae_bmnist} shows generated samples
+
+\begin{figure}[!htb]
+\centering
+\subfloat[]{{\includegraphics[scale=0.45]{latex/figures/samples_latent_dim_1_vanilla_mlp_vae_bmnist.pdf}}}
+\qquad
+\subfloat[]{{\includegraphics[scale=0.45]{latex/figures/samples_latent_dim_1_vanilla_dnn_vae_bmnist.pdf}}}
+\qquad
+\subfloat[]{{\includegraphics[scale=0.45]{latex/figures/samples_latent_dim_1_vanilla_conv_vae_bmnist.pdf}}}
+\qquad
+\subfloat[]{{\includegraphics[scale=0.45]{latex/figures/samples_latent_dim_20_vanilla_mlp_vae_bmnist.pdf}}}
+\qquad
+\subfloat[]{{\includegraphics[scale=0.45]{latex/figures/samples_latent_dim_20_vanilla_dnn_vae_bmnist.pdf}}}
+\qquad
+\subfloat[]{{\includegraphics[scale=0.45]{latex/figures/samples_latent_dim_20_vanilla_conv_vae_bmnist.pdf}}}
+\qquad
+\subfloat[]{{\includegraphics[scale=0.45]{latex/figures/samples_latent_dim_100_vanilla_mlp_vae_bmnist.pdf}}}
+\qquad
+\subfloat[]{{\includegraphics[scale=0.45]{latex/figures/samples_latent_dim_100_vanilla_dnn_vae_bmnist.pdf}}}
+\qquad
+\subfloat[]{{\includegraphics[scale=0.45]{latex/figures/samples_latent_dim_100_vanilla_conv_vae_bmnist.pdf}}}
+\caption{Comparison of original and reconstructed images. Grids to the left are the MLP-VAE, in the middle DNN-VAE and to the right Conv-VAE. The top row shows 1 latent dimension, the middle 20 latent dimensions and the bottom 100}
+\label{fig:samples_latent_dim_vanilla_vae_bmnist}
+\end{figure}
+
+
+
+
+
+
+\subsection{Disentangling the latent space}
+
+\autoref{fig:tsne_beta_vae_bmnist} shows the t-SNE embedding of the latent distribution for different values of $\beta$. The color and label of each cluster corresponds to the MNIST digit label. .. on test set
+
+\begin{figure}[!htb]
+\centering
+\subfloat[]{{\includegraphics[scale=0.45]{latex/figures/tsne_beta_0.1_vae.pdf}}}
+\qquad
+\subfloat[]{{\includegraphics[scale=0.45]{latex/figures/tsne_beta_0.5_vae.pdf}}}
+\qquad
+\subfloat[]{{\includegraphics[scale=0.45]{latex/figures/tsne_beta_1_vae.pdf}}}
+\qquad
+\subfloat[]{{\includegraphics[scale=0.45]{latex/figures/tsne_beta_2_vae.pdf}}}
+\qquad
+\subfloat[]{{\includegraphics[scale=0.45]{latex/figures/tsne_beta_5_vae.pdf}}}
+\qquad
+\subfloat[]{{\includegraphics[scale=0.45]{latex/figures/tsne_beta_10_vae.pdf}}}
+\caption{t-SNE }
+\label{fig:tsne_beta_vae_bmnist}
+\end{figure}
+
 
 %----------------------------------------------------------------
 \subsection{Results 1}\label{sec:project results}
