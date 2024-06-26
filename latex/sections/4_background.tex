@@ -2,57 +2,6 @@
 \section{Background}\label{sec:Theory}
 %================================================================
 
-\subsubsection*{New outline}
-
-\begin{itemize}
-    \item Just focus on dim reduction (no parameter estimation)
-    \item Experiments
-    \begin{itemize}
-        \item Conv-VAE MNIST (f.ex. 0-4) *
-        \item $\beta$-VAE MNIST *
-        \item InfoVAE MNIST *
-        \item InfoVAE HH *
-        \item Maybe: InfoVAE OU *
-        \item LSTM or Transformer VAE HH (deterministic)
-        \item Maybe: try models on Ornstein–Uhlenbeck (OU) process (stochastic) \url{https://stat.pitt.edu/si/ou.pdf}
-    \end{itemize}
-    \item Model goodness qualitatively by comparing simulation vs generative model
-    \item use t-SNE for visualizing latent space
-    \item Quantitative:
-    \begin{itemize}
-        \item Reconstruction error over latent dimensionality
-    \end{itemize}
-\end{itemize}
-
-\subsubsection*{Old outline}
-
-\begin{itemize}
-    \item Autoencoders (brief)
-    \begin{itemize}
-        \item Purpose
-        \item Architecture
-        \item Optimization (reconstruction loss)
-    \end{itemize}
-    \item Variational autoencoders
-    \begin{itemize}
-        \item Key difference between AE and VAE
-        \item VAE optimization (reconstruction loss + regularization)
-        \item Reparametrization trick
-    \end{itemize}
-    \item $\beta$-VAE
-    \item Convolutional VAE (maybe Method)
-    \begin{itemize}
-        \item Traditional CNN
-        \item If time, modern CNN with Fourier transforms
-    \end{itemize}
-    \item LSTM-based VAE (maybe Method)
-    \begin{itemize}
-        \item RNN background
-        \item LSTM
-    \end{itemize}
-    \item Latent perturbation / interpreting latent features 
-\end{itemize}
-
 %----------------------------------------------------------------
 \subsection{Autoencoders}
 %----------------------------------------------------------------
@@ -67,9 +16,9 @@ An autoencoder is a type of artificial neural network that employs dimensionalit
  \label{fig:ae}
 \end{figure}
 
-Although autoencoders are effective in data compression and reconstruction, there is no stochasticity involved. This makes them inadequate for generating new data that fits a specific class. For example, an autoencoder trained on images of chairs can recreate these specific chairs, but will not create a variety of new chair images encompassing the full concept of "chairness". Moreover, the latent space of regular autoencoders may be discontinuous, making the generation and interpretation of specific features challenging or impossible. To introduce stochasticity and create continuous and practical latent spaces, Variational Autoencoders (VAEs) can be used. VAEs improve upon standard autoencoders by incorporating probabilistic elements, allowing the generation of new data instances that conform to the desired class. 
+Although autoencoders are effective in data compression and reconstruction, there is no stochasticity involved. This makes them inadequate for generating new data that fits a specific class. For example, an autoencoder trained on images of chairs can recreate these specific chairs, but will not create a variety of new chair images encompassing the full concept of "chairness". Moreover, the latent space of regular autoencoders may be discontinuous, making the generation and interpretation of specific features challenging or impossible. To introduce stochasticity and create continuous and practical latent spaces, Variational Autoencoders (VAEs) \citep{kingma2022autoencoding} can be used. VAEs improve upon standard autoencoders by incorporating probabilistic elements, allowing the generation of new data instances that conform to the desired class. 
 
-\subsection{Variational Autoencoders}
+\subsection{Variational autoencoders}
 
 In a simplified way, stochasticity in VAEs is introduced within the latent feature space (see \autoref{fig:ae}). Instead of storing a single output value per feature, VAEs store a probability distribution, represented by a mean and a standard deviation for each feature. This approach ensures that specific features are continuous around their mean (via the standard deviation) and sufficiently separated to be distinguishable (via the mean).
 
@@ -96,56 +45,54 @@ It is important to note that the function $q_\phi(z|x)$ serves as an encoder, ta
 
 \subsubsection{$\beta$-VAE}
 
-A challenge of VAE is that features in the latent space can become entangled. For exmple, in a VAE trained to generate faces, the feature controlling the head's angle might become entangled with the feature controlling the person's smile. Consequently, a generated person looking to the left might always appear sad, while one looking to the right might always appear happy. This issue can be resolved by introducing a hyperparameter $\beta >1$ in front of the KL-divergence term in the ELBO equation:
+A challenge of VAE is that features in the latent space can become entangled. For example, in a VAE trained to generate faces, the feature controlling the head's angle might become entangled with the feature controlling the person's smile. Consequently, a generated person looking to the left might always appear sad, while one looking to the right might always appear happy. This issue can be resolved by introducing a hyperparameter $\beta >1$ in front of the KL-divergence term in the ELBO equation \citep{higgins2017betavae}:
 
 \begin{equation}\label{eqn:beta}
  \mathbb{E}_{q_\phi(z|x)}\left[\log \frac{p(x,z)}{q_\phi(z|x)}  \right]
  = \mathbb{E}_{q_\phi(z|x)}[\log p_\theta (x|z)] -\beta D_{KL}(q_\phi(z|x)||p(z))
 \end{equation}
 
-
 The $\beta$ parameter forces the model to consider the chosen prior distribution during optimization. For example, if a multivariate Gaussian is chosen as the prior, the model will force the encoded values closer to this distribution. By increasing the cost of adding features to the latent layer, $\beta$ reduces feature redundancy. In a VAE for generating faces, this means it would help eliminate unnecessary features, such as an extra feature encoding both hair and eye color when separate features for hair color and eye color already exist.
 
-\subsubsection{InfoVAE}
+%\subsubsection{InfoVAE}
 
-Another potential challenge with VAEs is that the encoder can assign identical latent features to any input $x$. Consequently, when the decoder samples from this distribution, it effectively samples from the distribution of the input data rather than from meaningful and learned features. This issue may not be critical if the objective is solely to generate images with a VAE. However, if the goal is to utilize the encoder for specific tasks, such as identifying which measurable quantities are essential for generating particular experimental data, it becomes crucial to ensure that the latent space contains useful features.
+%Another potential challenge with VAEs is that the encoder can assign identical latent features to any input $x$. Consequently, when the decoder samples from this distribution, it effectively samples from the distribution of the input data rather than from meaningful and learned features. This issue may not be critical if the objective is solely to generate images with a VAE. However, if the goal is to utilize the encoder for specific tasks, such as identifying which measurable quantities are essential for generating particular experimental data, it becomes crucial to ensure that the latent space contains useful features.
 
-InfoVAE addresses both this issue and the issue solved by $\beta$-VAE, as $\beta$-VAE is a special case of InfoVAE. To formulate the training objective of InfoVAE, it is instructive to start from an alternative, but equivalently constant, formulation of \autoref{eqn:loss} \citep{Zhao}
+%InfoVAE addresses both this issue and the issue solved by $\beta$-VAE, as $\beta$-VAE is a special case of InfoVAE. To formulate the training objective of InfoVAE, it is instructive to start from an alternative, but equivalently constant, formulation of \autoref{eqn:loss} \citep{Zhao}
 
-\begin{equation} \label{eqn:4}
- \mathbb{E}_{q_\phi(z|x)}\left[\log \frac{p(x,z)}{q_\phi(z|x)}  \right]
- =-D_{KL}(q_\phi(z)||p(z))-\mathbb{E}_{q_\phi(z)}[D_{KL}(q_\phi(x|z)||p_\theta(x|z))].
-\end{equation}
+%\begin{equation} \label{eqn:4}
+% \mathbb{E}_{q_\phi(z|x)}\left[\log \frac{p(x,z)}{q_\phi(z|x)}  \right]
+% =-D_{KL}(q_\phi(z)||p(z))-\mathbb{E}_{q_\phi(z)}[D_{KL}(q_\phi(x|z)||p_\theta(x|z))].
+%\end{equation}
 
-Another issue in VAEs arises from the fact that the dimensionality of input $x$ is typically much larger than that of the feature space $z$. This is known as Modeling Bias and applies to both divergences in \autoref{eqn:4}. If these divergences increase inversely, the error from the last term on the right-hand side of \autoref{eqn:4} can dominate, rendering the divergences in the latent space insignificant.
+%Another issue in VAEs arises from the fact that the dimensionality of input $x$ is typically much larger than that of the feature space $z$. This is known as Modeling Bias and applies to both divergences in \autoref{eqn:4}. If these divergences increase inversely, the error from the last term on the right-hand side of \autoref{eqn:4} can dominate, rendering the divergences in the latent space insignificant.
 
-To address all these issues inherent in standard VAEs, we modify the training objective in specific ways. To emphasize the importance of divergence in the latent space, we introduce a scaling hyperparameter $\lambda$ to multiply the first term on the right-hand side of \autoref{eqn:4}. Furthermore, we introduce a new term to counteract the tendency to underutilize samples $z$ from the latent space during decoding. This term is based on the mutual information between $z$ and $x$, denoted as $I_{q_\phi}(x,z)$. Since this term is positive, minimizing mutual information is desired. The revised objective for InfoVAE is then:
+%To address all these issues inherent in standard VAEs, we modify the training objective in specific ways. To emphasize the importance of divergence in the latent space, we introduce a scaling hyperparameter $\lambda$ to multiply the first term on the right-hand side of \autoref{eqn:4}. Furthermore, we introduce a new term to counteract the tendency to underutilize samples $z$ from the latent space during decoding. This term is based on the mutual information between $z$ and $x$, denoted as $I_{q_\phi}(x,z)$. Since this term is positive, minimizing mutual information is desired. The revised objective for InfoVAE is then:
 
-\begin{align}
- \mathbb{E}_{q_\phi(z|x)}\left[\log \frac{p(x,z)}{q_\phi(z|x)}  \right]_{InfoVAE}
- =&-\lambda D_{KL}(q_\phi(z)||p(z))\\ \nonumber
- &-\mathbb{E}_{q_\phi(z)}[D_{KL}(q_\phi(x|z)||p_\theta(x|z))]\\ \nonumber
- &+\alpha I_{q_\phi(x,z)}(x;z).
- \label{eqn:4}
-\end{align}
+%\begin{align}
+% \mathbb{E}_{q_\phi(z|x)}\left[\log \frac{p(x,z)}{q_\phi(z|x)}  \right]_{InfoVAE}
+% =&-\lambda D_{KL}(q_\phi(z)||p(z))\\ \nonumber
+% &-\mathbb{E}_{q_\phi(z)}[D_{KL}(q_\phi(x|z)||p_\theta(x|z))]\\ \nonumber
+% &+\alpha I_{q_\phi(x,z)}(x;z).
+% \label{eqn:4}
+%\end{align}
 
-where this formulation is not immediately straightforward to optimize. Returning to the standard ELBO is achieved by setting the hyperparameters to $\alpha=0$ and $\lambda=1$, while $\lambda > 0$ and $\alpha+\lambda-1=0$ return to $\beta$-VAE.
+%where this formulation is not immediately straightforward to optimize. Returning to the standard ELBO is achieved by setting the hyperparameters to $\alpha=0$ and $\lambda=1$, while $\lambda > 0$ and $\alpha+\lambda-1=0$ return to $\beta$-VAE.
 
-\subsection{MLP and DNN}
+\subsection{Multilayer perceptrons and dense neural networks}
 
-A multilayer perceptron (MLP) represents one of the fundamental types of neural networks, illustrated in Figure \ref{fig:mlp}. The network takes a set of inputs $X$, which are the features or data to be studied, and connects them to the subsequent hidden layer to the right through a series of weights, each corresponding to a connection. Each node $a$ in this hidden layer computes a weighted sum of inputs, augmented by a layer-specific bias term, and applies a non-linear activation function such as sigmoid, tanh, or ReLU. These activation functions introduce non-linearity into the model, enabling it to capture complex relationships between input variables and providing depth to the network (where multiple linear transformations cannot simply be replaced by a single linear transformation). The bias term adjusts the activation threshold of each node, analogous to a firing threshold in neuron models. The final layer $f(X)$ in \ref{fig:mlp} integrates outputs from the preceding layer to produce the network's final output value(s). To construct a more sophisticated and potentially more powerful network, additional hidden layers are often added successively. 
-
+A multilayer perceptron (MLP) represents one of the fundamental types of neural networks, illustrated in \autoref{fig:mlp}. The network takes a set of inputs $X$, which are the features or data to be studied, and connects them to the subsequent hidden layer to the right through a series of weights, each corresponding to a connection. Each node $a$ in this hidden layer computes a weighted sum of inputs, augmented by a layer-specific bias term, and applies a non-linear activation function such as sigmoid, tanh, or ReLU. These activation functions introduce non-linearity into the model, enabling it to capture complex relationships between input variables and providing depth to the network (where multiple linear transformations cannot simply be replaced by a single linear transformation). The bias term adjusts the activation threshold of each node, analogous to a firing threshold in neuron models. The final layer $f(X)$ in \autoref{fig:mlp} integrates outputs from the preceding layer to produce the network's final output value(s). To construct a more sophisticated and potentially more powerful network, additional hidden layers are often added successively. 
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\linewidth]{latex//figures/multilayerperceptron_network.png}
-    \caption{\textbf{MLP}:Input data $X$ is sent to a hidden layer, denoted $a$, and finally an output $f(X)$ is generated. Figure borrowed without permission from sckikit-learn.org.}
+    \caption{\textbf{MLP}:Input data $X$ is sent to a hidden layer, denoted $a$, and finally an output $f(X)$ is generated. Figure retrieved from sckikit-learn.org.}
     \label{fig:mlp}
 \end{figure}
 
 Initially, the network will produce meaningless output until it is trained. Training involves adjusting the weights and biases for each hidden layer by comparing the generated output to known target data. For instance, when classifying digits from the MNIST dataset, a flattened array of grayscale values is input, and the network aims to classify them into digits 0 through 9. The error between the network's output and the correct answers is computed and propagated backward through the layers via backpropagation. At each layer, weights and biases are updated in accordance with the error to refine the model's predictions. Training continues iteratively until predefined criteria are met, such as reaching a specified number of iterations or no longer improving over several cycles. This process, known as model training, demands substantial amounts of data and computation time. A well-trained model with low error can then be deployed on unseen data to predict outputs that closely match the correct results.
 
-A deep neural network (DNN) is constructed using the same fundamental elements as the MLP in \ref{fig:mlp}, but with increased complexity including additional hidden layers as illustrated in \ref{fig:dnn}. For instance, taking the input of 28x28 dimensions of MNIST data flattened to a 784-dimensional vector into consideration, MLP and DNN show different network architectures. In the case of MLP, the input is fed into a single hidden layer comprising 500 features, where the output, serving as the latent space in a VAE, is set to 20 features. DNN follows the same initial structures, but includes additional hidden layers subsequent to the first and features 150 features. Therefore, MLPs and DNNs utilize common building blocks, but differs in the depth and configuration of their hidden layers.
+A deep neural network (DNN) is constructed using the same fundamental elements as the MLP in \autoref{fig:mlp}, but with increased complexity including additional hidden layers as illustrated in \autoref{fig:dnn}. For instance, taking the input of 28x28 dimensions of MNIST data flattened to a 784-dimensional vector into consideration, MLP and DNN show different network architectures. In the case of MLP, the input is fed into a single hidden layer comprising 500 features, where the output, serving as the latent space in a VAE, is set to 20 features. DNN follows the same initial structures, but includes additional hidden layers subsequent to the first and features 150 features. Therefore, MLPs and DNNs utilize common building blocks, but differs in the depth and configuration of their hidden layers.
 
 \begin{figure}
     \centering
@@ -218,11 +165,10 @@ A deep neural network (DNN) is constructed using the same fundamental elements a
 % Also, total loss should be divided by T (num timesteps) so scale of loss will not be sensitive to length of sequences. not relevant for our purposes I believe, w all sequences as long.
 
 %----------------------------------------------------------------
-\subsection{CNN}
+\subsection{Convolutional neural networks}
 %----------------------------------------------------------------
 
-Convolutional Neural Networks (CNNs) are predominantly used in image processing tasks such as image recognition. They differ from other neural network types by incorporating convolution operations in one or more layers instead of typically used matrix multiplications. This architectural choice is tailored to leverage the typical spatial structure of images, characterized by dimensions of width, height, and depth, which helps optimize network performance compared to more general architectures. In CNNs, the 3D nature of input data (width, height, and channels) is preserved across hidden layers, which are specialized into specific types. The key of convolution lies in the application of kernels (typically N$x$N$x$F filters) across the input data. Each kernel slides over the input data with a predefined stride, computing outputs by performing a dot product operation within its receptive field. This process, illustrated in Figure \ref{fig:cnn}, transforms an initial 28x28x1 input image, for example, into a 28x28x32 output using a 5x5x32 kernel. In convolution operations like this, the focus is not on numerous weights and biases as in deep neural nets, but rather a smaller set of chosen parameters: 
-
+Convolutional Neural Networks (CNNs) are predominantly used in image processing tasks such as image recognition. They differ from other neural network types by incorporating convolution operations in one or more layers instead of typically used matrix multiplications. This architectural choice is tailored to leverage the typical spatial structure of images, characterized by dimensions of width, height, and depth, which helps optimize network performance compared to more general architectures. In CNNs, the 3D nature of input data (width, height, and channels) is preserved across hidden layers, which are specialized into specific types. The key of convolution lies in the application of kernels (typically N$x$N$x$F filters) across the input data. Each kernel slides over the input data with a predefined stride, computing outputs by performing a dot product operation within its receptive field. This process, illustrated in \autoref{fig:cnn}, transforms an initial 28x28x1 input image, for example, into a 28x28x32 output using a 5x5x32 kernel. In convolution operations like this, the focus is not on numerous weights and biases as in deep neural nets, but rather a smaller set of chosen parameters: 
 
 \begin{itemize}
  \item \textbf{Kernel size}: The spatial dimensions of each filter, as well as the number of filters (N$x$N$x$F)
@@ -246,47 +192,108 @@ Some benefits of such a network compared to a deep neural network are:
  \item can do unsupervised classification and feature extraction/recognition
 \end{itemize}
 
-% %inside the window defined by the kernel, computing the output of local regions of the data.
-%This step will typically increase the depth dimension size considerably, depending on the number of channels in the kernel used.\\
-
-%Another important layer type in CNNs is the pooling layer, which decreases the spatial dimensions. In a way it is similar to what we did above, in that we create an N$x$N window again, whisch we apply in a similar manner all over the image. This time however, instead of doing a dot product over the image data and the kernel vaues, we simply find a way of representing the N$x$N data as one single data point. Two very popular methods are to either take the average over all values inside the window, or simply to pick the maximum value.
-%In Figure \ref{fig:cnn} we see pooling being used in the second operation, where a 2x2 window is applied, quartering the spatial dimension of each channel. Note that this crude dimension reduction can loseinteresting features, so it is rarely chosen to be large.
-%After a series of such convolutional and pooling layers, you will finally be prepared to do the classification, or whichever task you have for your network. The ouput of your final pooling layer is flattened into a single vector, and sent into one (ore more) fully connected (all to all) layer(s). The output of the final of these is used to perform your designated task.
-
 Unlike deep neural networks that rely on extensive parameters, CNNs utilize a compact set of parameters per operation. Additionally, CNNs employ pooling layers to reduce spatial dimensions. Pooling involves applying an N$x$N window across the data and aggregating it into a single value, typically by taking the maximum or average. While effective for dimensionality reduction, pooling can discard nuanced features, thus smaller pool sizes are preferred. Following a sequence of convolutional and pooling layers, the final output is prepared for classification or another designated task. The output of the last pooling layer is flattened into a vector and fed into one or more fully connected layers, which perform the final computation.
 
+%\subsection{Visualizing the latent space}
+
+%Visualizing the latent space, where features are represented in a lower-dimensional form, helps when it comes to understanding data distributions and feature relationships. In order to do this, methods such as t-distributed stochastic neighbor embedding (t-SNE) are valuable for reducing high-dimensional data to a 2D or 3D embedding. t-SNE is a non-linear, unsupervised method that emphasizes proximity between data points in the latent space, revealing class distributions and similarities. To achieve this, t-SNE computes pairwise similarities between data points in the high-dimensional space using a Gaussian distribution, 
+
+%\begin{equation}
+%    p_{i|j}=\frac{\exp (-||x_i-x_j||^2/2\sigma_i^2)}{\sum_{k\neq i}\exp(-||x_i-x_k||^2/2\sigma_i^2)},
+%\end{equation}
+
+%with the probability that j is a neighbor if you are i. The probabilities will usually be symmetrized, $p_{ij}=(p_{j|i}+p_{i|j})/2N$, where N is the number of samples used. 
+
+%A similar probability distribution is created in the low dimensional visualization layer (or embedding space), using a Student t-distribution instead of the Gaussian distribution we used before: 
+
+%\begin{equation}
+%    q_{ij}=\frac{(1+||y_i-y_j||^2)^{-1}}{\sum_k\sum_{l\neq k}(1+||y_k-y_l||^2)^{-1}},
+%\end{equation}
+
+%where $q_{ii}=0$. We now have two probability distributions that we wish to make as similar as possible. This optimization process minimizes the Kullback-Leibler (KL) divergence between the high-dimensional and embedding space distributions, ensuring a faithful representation of data relationships in the reduced dimensionality.
+
+%If we call the embedding space distribution Q and the latent space distribution P, we have
+
+%\begin{equation}
+%    D_{KL}(P||Q)=\sum_{i\neq j}p_{ij}\log\frac{p_{ij}}{q_{ij}}
+%\end{equation}
+
+%as the expression we wish to minimize using gradient descent.
+%Running through these steps should result in a very low (2/3D) representation of a higher dimensional space, that can be used for visualizing classes.
+
+%By leveraging t-SNE, researchers can obtain insightful visualizations that facilitate the interpretation and analysis of complex data distributions, aiding tasks such as class separation and clustering in visual contexts. However, this computational method can be intensive for large datasets, requiring careful parameter tuning and computational resources to achieve optimal results.
 
 
-\subsection{Visualizing the latent space}
+%----------------------------------------------------------------
+\subsection{Action potentials and the Hodgkin-Huxley model}
+%---------------------------------------------------------------- 
 
+\subsubsection*{Action potentials}
+Neurons are the fundamental units of the brain and are responsible for carrying information throughout the body. They do so by relaying electric signals called action potentials. Action potentials are the result of ionic currents that pass through the neuronal membrane. The neuronal membrane potential is affected by signals received from other neurons in its circuit, which can make the membrane potential less negative (depolarized) or more negative (hyperpolarized). If a neuron is depolarized sufficiently to raise the membrane potential above the membrane's threshold voltage, a positive feedback process is initiated which triggers an action potential. The temporal evolution of action potentials can be divided into different phases, as shown and described in \autoref{fig:action_potential}.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.6]{latex/figures/action_potential.png}
+    \caption{The temporal evolution of the membrane potential during a typical action potential. The membrane potential initially rests at its baseline level when (1) a stimulus pushes it over the threshold. (2) This triggers a rapid rise in the membrane potential, known as depolarization, caused by the opening of voltage-gated sodium (Na$^+$) channels which give an influx of Na$^+$ ions into the neuron. (3) Following depolarization, there is a sharp decrease in the membrane potential called repolarization. This occurs as the sodium channels close and potassium (K$^+$) channels open, resulting in an efflux of K$^+$ ions. Typically, the membrane potential undershoots its resting level, leading to a brief period of hyperpolarization. (5) Finally, the membrane potential gradually returns to its resting state, completing the action potential. Retrieved from \cite{action_potential}.
+    }
+    \label{fig:action_potential}
+\end{figure}
 
+\subsubsection*{The Hodgkin-Huxley model}
 
-Visualizing the latent space, where features are represented in a lower-dimensional form, helps when it comes to understanding data distributions and feature relationships. In order to do this, methods such as t-distributed stochastic neighbor embedding (t-SNE) are valuable for reducing high-dimensional data to a 2D or 3D embedding. t-SNE is a non-linear, unsupervised method that emphasizes proximity between data points in the latent space, revealing class distributions and similarities. To achieve this, t-SNE computes pairwise similarities between data points in the high-dimensional space using a Gaussian distribution, 
+The seminal Hodgkin-Huxley (HH) model \citep{HH1952} was the first biophysically detailed description of the ionic mechanisms underlying  action potentials in neurons. At the core of the model are four ordinary differential equations that describe how the opening and closing of ion channels in the neuronal membrane are influenced by changes in membrane potential: 
 
-\begin{equation}
-    p_{i|j}=\frac{\exp (-||x_i-x_j||^2/2\sigma_i^2)}{\sum_{k\neq i}\exp(-||x_i-x_k||^2/2\sigma_i^2)},
-\end{equation}
+\begin{subequations}\label{eq:hh_model}
+    \begin{align}
+    C_m \frac{\dd{V}}{\dd{t}} &= - \bar{g}_\mathrm{K} n^4 \qty(V - E_\mathrm{K}) - \bar{g}_\mathrm{Na} m^3h \qty(V - E_\mathrm{Na}) - \bar{g}_\mathrm{L} \qty(V - E_\mathrm{L}) + I
+    \label{eq:hh_model_dVdt}
+    \\
+    \frac{\dd{n}}{\dd{t}} &= \alpha_n (V) (1-n) - \beta_n (V) n 
+    \label{eq:hh_model_dndt}
+    \\
+    \frac{\dd{m}}{\dd{t}} &= \alpha_m (V) (1-m) - \beta_m (V) m
+    \label{eq:hh_model_dmdt}
+    \\
+    \frac{\dd{h}}{\dd{t}} &= \alpha_h (V) (1-h) - \beta_h (V) h
+    \label{eq:hh_model_dhdt}
+    \end{align}
+\end{subequations}
 
-with the probability that j is a neighbor if you are i. The probabilities will usually be symmetrized, $p_{ij}=(p_{j|i}+p_{i|j})/2N$, where N is the number of samples used. 
+By solving these equations, the model can simulate the behavior of a neuron and accurately reproduce the generation and propagation of action potentials. In particular, \autoref{eq:hh_model_dVdt} describes how the membrane potential $V$ evolves over time. The variables $n$, $m$ and $h$ are dimensionless quantities that are associated with potassium channel activation, sodium channel activation and sodium channel inactivation, respectively. The terms on the form $\bar{g}_X (V-E_X)$ describe the current through a ion channel $X$ as the product of that channel's total conductance $\bar{g}_X$ and the driving potential $(V-E_X)$, where $E_X$ is the reversal potential, for the specific ion. For more details on the model, we refer to the original article or, e.g., the textbook by \cite{Sterratt}. The values of the original model parameters are summarized in \autoref{tab:hh_model_parameters}. \autoref{fig:hh_states} shows the numerical solutions of a simulation of the HH model. 
 
-A similar probability distribution is created in the low dimensional visualization layer (or embedding space), using a Student t-distribution instead of the Gaussian distribution we used before: 
+\begin{table}[!htb]
+  \caption{The original parametrization of the HH model.}
+  %\footnotesize%
+  \begin{center}
+    \rowcolors{2}{gray!15}{white}
+    \begin{tabular}{lll}
+      \toprule
+      \textbf{Parameter} & \textbf{Value} & \textbf{Description} \\
+      \midrule
+      $C_m$ & $1.0 \, \mathrm{\mu F \, cm}^{-2}$ & Membrane capacitance
+      \\
+      $\bar{g}_\mathrm{K}$ & $36.0 \,\mathrm{mS/cm}^2$ & Maximum potassium channel conductance 
+      \\
+      $\bar{g}_\mathrm{Na}$ & $120.0 \,\mathrm{mS/cm}^2$ & Maximum sodium channel conductance 
+      \\
+      $\bar{g}_\mathrm{L}$ & $0.3 \,\mathrm{mS/cm}^2$ & Maximum leakage channel conductance
+      \\
+      $E_\mathrm{K}$ & $-77.0 \,\mathrm{mV}$ & Potassium reversal potential
+      \\
+      $E_\mathrm{Na}$ & $50.0 \,\mathrm{mV}$ & Sodium reversal potential
+      \\
+      $E_\mathrm{L}$ & $-54.4 \,\mathrm{mV}$ & Leak reversal potential
+      \\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+  \label{tab:hh_model_parameters}
+\end{table}
 
-\begin{equation}
-    q_{ij}=\frac{(1+||y_i-y_j||^2)^{-1}}{\sum_k\sum_{l\neq k}(1+||y_k-y_l||^2)^{-1}},
-\end{equation}
-
-where $q_{ii}=0$. We now have two probability distributions that we wish to make as similar as possible. This optimization process minimizes the Kullback-Leibler (KL) divergence between the high-dimensional and embedding space distributions, ensuring a faithful representation of data relationships in the reduced dimensionality.
-
-%But this is something we have recently dealt with, and is done by minimizing the KL divergence!\\
-
-If we call the embedding space distribution Q and the latent space distribution P, we have
-
-\begin{equation}
-    D_{KL}(P||Q)=\sum_{i\neq j}p_{ij}\log\frac{p_{ij}}{q_{ij}}
-\end{equation}
-
-as the expression we wish to minimize using gradient descent.
-Running through these steps should result in a very low (2/3D) representation of a higher dimensional space, that can be used for visualizing classes.
-
-By leveraging t-SNE, researchers can obtain insightful visualizations that facilitate the interpretation and analysis of complex data distributions, aiding tasks such as class separation and clustering in visual contexts. However, this computational method can be intensive for large datasets, requiring careful parameter tuning and computational resources to achieve optimal results.
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=1.0]{hh_states}
+    \caption{Simulated dynamics of $V$, $n$, $m$ and $h$ in the HH model during the firing of action potentials. The system is simulated for $T = 60 \,\mathrm{ms}$ with time resolution $\Delta t=0.025 \,\mathrm{ms}$. The input stimulus received by the neuron (bottom panel) is a step current with amplitude $I = 10 \, \mathrm{\mu A/cm}^2$, and onset and offset at $10 \,\mathrm{ms}$ and $50 \,\mathrm{ms}$, respectively. The parametrization of the model is given by \autoref{tab:hh_model_parameters}. 
+    }
+    \label{fig:hh_states}
+\end{figure}

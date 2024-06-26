@@ -2,36 +2,8 @@
 \section{Introduction}\label{sec:Introduction}
 %================================================================
 
-Simulators are the modern manifestation of scientific theories. They can implement complex mechanistic models of natural phenomena of interest as well as models for the instruments used to observe the processes under investigation. The flexibility of simulators has made them critical research tools for testing hypotheses and predicting system dynamics in many areas of science and engineering. The central challenge in simulation-based science is constraining the parameters of the underlying mechanistic model to make the simulator's predictions consistent with empirical data. Unfortunately, simulators are poorly suited for statistical inference and lead to challenging inverse problems. Mechanistic models defined through simulators describes how a process generates data, and can thus be run forward to generate samples from the likelihood. However, while the likelihood function itself can be derived for purely statistical models, the likelihood is generally intractable or computationally infeasible for simulator models, rendering traditional methods in the toolkit of statistical inference inaccessible. To overcome the challenge of intractable likelihoods, there are an emerging set of techniques for \textit{simulation-based inference} (SBI). These methods replace explicit likelihood evaluations with model simulations and make simulator models amenable for analysis in a fully Bayesian context.
+When working with high-dimensional data, analysis and modeling often necessitate the compression of the data into a lower-dimensional representation. It is then crucial to extract the relevant information. The features of high-dimensional data can be expertly crafted using domain knowledge or found by tapping into the ability of modern machine learning methods to learn useful representations of the data directly.
 
-The target of a SBI algorithm can either be the posterior over model parameters directly or a surrogate model for the likelihood, which requires additional inference to obtain the posterior. The simplest example of SBI, the \textit{Approximate Bayesian Computation} (ABC) rejection method, builds an approximation to the true posterior by using repeated runs of the simulator together with an accept-reject criterion based on the discrepancy between the simulated and empirical data to draw posterior samples. Complex simulator models typically have both high-dimensional parameter and observational data spaces. Due to the curse of dimensionality, the posterior is therefore typically conditioned on a lower-dimensional representation of the empirical data. Condensing high-dimensional observations into low-dimensional summary statistics that captures information relevant to the parameters of interest is crucial to the success of the inference.
+In this project, the objective is to investigate whether variational autoencoders (VAEs) \citep{kingma2022autoencoding} can be used to learn features from simulated neural recordings with the Hodgkin-Huxley model \citep{HH1952}. We embark on this quest in the traditional way -- by building simple models and testing them on the (binarized) MNIST dataset. Specifically, we will build VAEs with simple dense and convolutional neural networks as encoder/decoder architecture. In addition to reducing the dimensionality, it is desirable for the VAE to be able to extract meaningful and independent latent factors that explain the majority of the variation in the data. This is called disentangling the latent space and is facilitated by, for example, $\beta$-VAEs \citep{higgins2017betavae}. We will also build $\beta$-VAEs to explore the disentanglement of the latent space. Informed by experiments on the binarized MNIST dataset, we apply the VAEs on the the simulated neural data.
 
-Features of high-dimensional activity of neural populations can, for example, be expertly crafted by using domain knowledge or found by tapping into the ability of modern machine learning methods to learn useful representations directly from high-dimensional data. The latter approach might be able to uncover latent structures and dynamics from the activity of neural populations.
-
-The idea of this project is to use Variational Autoencoders (VAEs) for dimension reduction of neural population activity to improve SBI methods for parameter identification in mechanistic models of neural dynamics. In particular, the idea is to explore:
-
-\begin{itemize}
-    \item Convolutional VAEs
-    \item LSTM-based VAEs
-    \item Diffusion VAEs
-\end{itemize}
-
-
-for feature learning from simulated extracellular recordings. Raw extracellular recordings of neural signals are composed of two main components: \textit{local field potential} (LFP) and \textit{spikes} (action potentials). Spikes are extracted from the high-frequency part of these signals and LFP from the low-frequency part. As opposed to the spike data, which represent the output of a neuron, LFPs represent the synchronized input into the observed area, accounting for the biophysics of neurons, populations, and recurrent connections.
-
-%----------------------------------------------------------------
-\subsection{Intro pointers}
-%----------------------------------------------------------------
-
-\begin{itemize}
-    \item Problem description
-    \item Dimension reduction / feature (representation) learning
-    \item Generative modeling
-    \item Latent variable models
-    \item Overview of this study
-    \item How it is organized
-\end{itemize}
-
-
-
-\subsection{Notes}
+The report is organized as follows. In \autoref{sec:Theory} we first provide the theoretical background of variational autoencoders and the dense and convolutional neural networks we use as encoder/decoder architectures. We also provide some brief background necessary to understand the neural data on which we ultimately will train the VAE model. In \autoref{sec:Method} we present the datasets and the different VAE architectures used, as well as a short description of the methods applied in the training of the VAEs. In \autoref{sec:Results} we present and discuss the results. Finally, in \autoref{sec:Conclusion} we provide conclusions to the approach and outline possible avenues for future research.

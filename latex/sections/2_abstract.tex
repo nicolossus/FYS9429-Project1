@@ -2,5 +2,5 @@
 %------------------------- Abstract -----------------------------
 %================================================================
 \begin{abstract}
-
+Representation learning is a fundamental concept in machine learning that involves automatically discovering and extracting meaningful features or representations from raw data. In this project, the focus is on applying Variational Autoencoders (VAEs) to perform representation learning of a binarized version of the MNIST dataset and neural data, specifically action potentials simulated by the Hodgkin-Huxley model. Our implementation of VAEs, using simple dense and convolutional neural networks with the regularization technique introduced by $\beta$-VAE, successfully learned latent encodings that could be reconstructed with minimal loss. In the case of MNIST, we were able to compress the original $28 \times 28 = 784$ pixels to 20 latent dimensions and still achieve adequate reconstruction. Remarkably, for neural data originally consisting of 5,000 datapoints, even a 2-dimensional latent space could achieve good reconstruction.
 \end{abstract}
