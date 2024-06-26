@@ -29,18 +29,17 @@ def df_to_latex(df, outfile):
     Render dataframe to a LaTeX tabular environment table and write to file
     """
     n = len(df.columns)
-    col_format = n * 'c'
+    col_format = n * "c"
     # Render dataframe to a LaTeX tabular environment table and write to file
-    pd.options.display.float_format = '{:,.3f}'.format
-    df = df.apply(lambda x: x.astype(
-        int) if np.allclose(x, x.astype(int)) else x)
+    pd.options.display.float_format = "{:,.3f}".format
+    df = df.apply(lambda x: x.astype(int) if np.allclose(x, x.astype(int)) else x)
     pd.options.display.latex.escape = False
     latex = df.to_latex(index=False, column_format=col_format)
-    latex = latex.replace('\\toprule', '\\hline \\hline')
-    latex = latex.replace('\\midrule', '\\hline \\hline')
-    latex = latex.replace('\\bottomrule', '\\hline \\hline')
+    latex = latex.replace("\\toprule", "\\hline \\hline")
+    latex = latex.replace("\\midrule", "\\hline \\hline")
+    latex = latex.replace("\\bottomrule", "\\hline \\hline")
 
-    with open(tab_path(outfile), 'w') as f:
+    with open(tab_path(outfile), "w") as f:
         f.write(latex)
 
 
@@ -67,7 +66,7 @@ def set_figsize(width, fraction=1):
 
     # Golden ratio to set aesthetic figure height
     # https://disq.us/p/2940ij3
-    golden_ratio = (5**.5 - 1) / 2
+    golden_ratio = (5**0.5 - 1) / 2
 
     # Figure width in inches
     fig_width_in = fig_width_pt * inches_per_pt
