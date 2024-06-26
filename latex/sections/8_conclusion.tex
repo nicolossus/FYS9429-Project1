@@ -1,4 +1,11 @@
 %================================================================
-\section{Conclusion}\label{sec:Conclusion}
+\section{Conclusion and future research}\label{sec:Conclusion}
 %================================================================
+In this project, we have applied VAEs for representation learning on the binarized MNIST dataset and neural data simulated by the Hodgkin-Huxley model. 
+
+In experiments with the binarized MNIST dataset, we utilized two simple dense and one convolutional neural networks as encoder/decoder architecture in our VAE models to compare differences in performance and outcomes. All three models successfully learned low-dimensional latent encodings of the original $28 \times 28 = 784$ pixel images that could be reconstructed with minimal loss, but the convolutional VAE proved to be slightly superior as a feature extractor. Interestingly, there was little discrepancy in performance between a latent dimension of 20 and 100, suggesting that 20 latent dimensions may be an optimal choice. This notion was further supported by the comparison of original and reconstructed images from MNIST. We also used a convolutional $\beta$ -VAE to facilitate disentanglement of the 20-dimensional latent space. Analysis of the trade-off relationship between reconstruction accuracy and disentanglement suggested $\beta=2$ as an optimal value, which was also supported by comparing the original and reconstructed images.
+
+In experiments with neural data simulated from the Hodgkin-Huxley model, we used the convolutional $\beta$-VAE. From the original size of 5,000 data points, the convolutional $\beta$-VAE was able to learn 20-, 10- and 2-dimensional latent representations that could be adequately reconstructed. The reconstruction was more smooth in the suprathreshold region than in the subthreshold region, which had small fluctuations. However, the encoder and decoder networks we chose here are relatively simple. Applying more complex networks will likely make the reconstruction smoother on both sides of the action potential firing threshold. 
+
+This study serves as a proof-of-concept that VAEs can be used to learn latent representations of neural data. However, how much information that is retained in this compressed representation compared to expertly-crafted features, remains an exciting avenue for further research.
 
