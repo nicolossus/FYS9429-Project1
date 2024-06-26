@@ -13,7 +13,7 @@ Here is a brief description of the directories in this repo:
 * `experiments`: contains notebooks and scripts with the procedures for (re)producing the results.
 * `exploration`: contains notebooks and scripts used for development and exploration
 * `tests`: contains a very minimal set of tests for verifying `neurovae` functionality
-* ` latex`: contains the LaTeX source for building the report, as well as figures generated in the analyses.
+* `latex`: contains the LaTeX source for building the report, as well as figures generated in the analyses.
 * `report`: contains the report rendered to PDF from the LaTeX source.
 
 ## Run the code (reproducibility)
